@@ -15,26 +15,9 @@ public class AbrirCandado : MonoBehaviour
         posicionInicial = gameObject.transform.position;
     }
 
-    private void LateUpdate()
-    {
-        if (canvasObject == null) return;
-        canvasObject.transform.position = cam.transform.position + cam.transform.forward * 25f;
-        canvasObject.transform.rotation = cam.transform.rotation;
-    }
-
     void OnMouseDown()
     {
         if(!playMode) ToggleState();
-    }
-
-    private void Update()
-    {
-        if (Keyboard.current == null) return;
-
-        if (Keyboard.current.pKey.wasPressedThisFrame)
-        {
-            ToggleState();
-        }
     }
 
     public void ToggleState()
