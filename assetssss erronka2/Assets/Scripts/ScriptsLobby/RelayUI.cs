@@ -8,17 +8,41 @@ public class RelayUI : MonoBehaviour
 
     public async void Create()
     {
-        string code = await RelayManager.Instance.CreateRelayAndStartHost();
         if (joinCodeText != null)
-            joinCodeText.text = string.IsNullOrEmpty(code) ? "ERROR" : code;
+            joinCodeText.text = "CREATING...";
+
+        string code = await RelayManager.Instance.CreateRelayAndStartHost();
+
+        if (joinCodeText != null)
+        {
+            if (string.IsNullOrEmpty(code))
+                joinCodeText.text = "CREATE FAILED (Relay)";
+            else
+                joinCodeText.text = $"CODE: {code}";
+        }
+
+        Debug.Log($"UI Create result: {code}");
     }
 
     public async void Join()
     {
         string code = joinCodeInput != null ? joinCodeInput.text : "";
+
+        if (joinCodeText != null)
+            joinCodeText.text = "JOINING...";
+
+        Debug.Log($"UI Join pressed with code: {code}");
+
         bool ok = await RelayManager.Instance.JoinRelayAndStartClient(code);
 
-        if (!ok && joinCodeText != null)
-            joinCodeText.text = "JOIN FAILED";
+        if (joinCodeText != null)
+        {
+            if (ok)
+                joinCodeText.text = "JOINING (waiting netcode...)";
+            else
+                joinCodeText.text = "JOIN FAILED (Relay)";
+        }
+
+        Debug.Log($"UI Join result: {ok}");
     }
 }

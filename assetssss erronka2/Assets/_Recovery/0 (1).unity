@@ -927,7 +927,7 @@ MonoBehaviour:
     EnableTimeResync: 0
     TimeResyncInterval: 30
     EnsureNetworkVariableLengthSafety: 0
-    EnableSceneManagement: 0
+    EnableSceneManagement: 1
     ForceSamePrefabs: 1
     RecycleNetworkIds: 1
     NetworkIdRecycleDelay: 120
@@ -3219,11 +3219,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!4 &1364679501 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1767192434, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
-  m_PrefabInstance: {fileID: 1364679498}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1379217482
 GameObject:
   m_ObjectHideFlags: 0
@@ -3680,6 +3675,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 867662720}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1793591808 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1680501587, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+  m_PrefabInstance: {fileID: 1364679498}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1859332517
 GameObject:
   m_ObjectHideFlags: 0
@@ -4064,7 +4064,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VRRigReferences
   root: {fileID: 2132375191}
-  head: {fileID: 1364679501}
+  head: {fileID: 1793591808}
   rightHand: {fileID: 2106244345}
   leftHand: {fileID: 1679709639}
 --- !u!1001 &2134918433
