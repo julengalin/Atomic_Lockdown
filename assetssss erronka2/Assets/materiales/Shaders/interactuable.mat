@@ -40,9 +40,10 @@ Material:
     m_Floats:
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _outline_scale: 1.01
+    - _outline_intensity: 4
+    - _outline_scale: 1.05
     m_Colors:
-    - _outline_color: {r: 0.53409004, g: 1, b: 0, a: 1}
+    - _outline_color: {r: 0, g: 1, b: 0.2352941, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &3610096259342492014
