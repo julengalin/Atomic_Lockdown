@@ -10,6 +10,9 @@ public class RotateNumbers : MonoBehaviour
 
     private float currentZ;
 
+    public InteractionLock interactionLock;
+    public InteractionType tipo = InteractionType.CandadoNumerico;
+
     private void Start()
     {
         currentZ = initialRotationZ;
@@ -18,6 +21,14 @@ public class RotateNumbers : MonoBehaviour
 
     void OnMouseDown()
     {
+        if (interactionLock.tipoActual != InteractionType.None && interactionLock.tipoActual != tipo)
+        {
+            return;
+        }
+        else if (interactionLock.tipoActual == InteractionType.None)
+        {
+            interactionLock.Set(tipo);
+        }
         currentZ -= stepDegrees;
 
         currentZ = (currentZ % 360f + 360f) % 360f;

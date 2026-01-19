@@ -2,38 +2,15 @@ using UnityEngine;
 
 public class InteractionLock : MonoBehaviour
 {
-    public static InteractionLock instance;
+    public InteractionType tipoActual = InteractionType.None;
 
-    bool ocupado = false;
-    GameObject owner;
-
-    private void Awake()
+    public void Set(InteractionType tipo)
     {
-        if (instance == null) instance = this;
-        else Destroy(gameObject);
+        tipoActual = tipo;
     }
 
-    public bool EstaLibre()
+    public void Limpiar()
     {
-        return !ocupado;
-    }
-
-    public bool PuedeInteractuar(GameObject obj)
-    {
-        return !ocupado || owner == obj;
-    }
-
-    public void Ocupar(GameObject obj)
-    {
-        ocupado = true;
-        owner = obj;
-    }
-
-    public void Liberar(GameObject obj)
-    {
-        if (owner != obj) return;
-
-        ocupado = false;
-        owner = null;
+        tipoActual = InteractionType.None;
     }
 }

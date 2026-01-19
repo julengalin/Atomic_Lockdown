@@ -25,9 +25,13 @@ public class RecogerLlave : MonoBehaviour
 
     bool bloqueada = false;
 
+    [SerializeField] Transform keySocket;
 
-    Vector3 posicionBloqueo = new Vector3(-2.77f, 0.3547866f, -4.49f);
+    Vector3 bloqueoLocalOffset;
     float yTolerancia = 0.02f;
+
+    public InteractionLock interactionLock;
+    public InteractionType tipo = InteractionType.CandadoLlave;
 
     private void Start()
     {
@@ -38,18 +42,47 @@ public class RecogerLlave : MonoBehaviour
         Vector3 tr = tubo.transform.localEulerAngles;
         tr.z = 0f;
         tubo.transform.localEulerAngles = tr;
+    }
 
+    Camera GetCam()
+    {
+        Camera cam = null;
+        if (abrirCandadoLlave != null && abrirCandadoLlave.cam != null) cam = abrirCandadoLlave.cam;
+        if (cam == null) cam = Camera.main;
+        return cam;
+    }
 
+    Vector3 GetPlanePoint()
+    {
+        if (keySocket != null) return keySocket.position;
+        return transform.position;
+    }
+
+    void RecalcularPlano(Camera cam)
+    {
+        Vector3 planePoint = GetPlanePoint();
+        dragPlane = new Plane(-cam.transform.forward, planePoint);
     }
 
     private void OnMouseDown()
     {
         if (!playing) gestionLlave.recogerLlave();
 
-        Camera cam = Camera.main;
-        dragPlane = new Plane(-cam.transform.forward, transform.position);
+        if (interactionLock.tipoActual != InteractionType.None && interactionLock.tipoActual != tipo)
+        {
+            return;
+        }
+        else if (interactionLock.tipoActual == InteractionType.None)
+        {
+            interactionLock.Set(tipo);
+        }
 
         if (Mouse.current == null) return;
+
+        Camera cam = GetCam();
+        if (cam == null) return;
+
+        RecalcularPlano(cam);
 
         Ray ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
         if (dragPlane.Raycast(ray, out enter))
@@ -75,6 +108,7 @@ public class RecogerLlave : MonoBehaviour
     public void exitGame()
     {
         playing = false;
+        interactionLock.Limpiar();
     }
 
     void OnMouseDrag()
@@ -82,7 +116,16 @@ public class RecogerLlave : MonoBehaviour
         if (!playing) return;
         if (Mouse.current == null) return;
 
-        Camera cam = Camera.main;
+        if (interactionLock.tipoActual != InteractionType.None && interactionLock.tipoActual != tipo)
+        {
+            return;
+        }
+
+        Camera cam = GetCam();
+        if (cam == null) return;
+
+        RecalcularPlano(cam);
+
         Ray ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
 
         if (dragPlane.Raycast(ray, out enter))
@@ -98,9 +141,13 @@ public class RecogerLlave : MonoBehaviour
             if (!bloqueada)
                 transform.position = p;
 
-            if (!bloqueada && encajada && Mathf.Abs(transform.position.y - posicionBloqueo.y) <= yTolerancia)
+            if (!bloqueada && encajada && keySocket != null)
             {
-                BloquearYLanzarEventos();
+                float yRel = (transform.position - keySocket.position).y;
+                if (Mathf.Abs(yRel - bloqueoLocalOffset.y) <= yTolerancia)
+                {
+                    BloquearYLanzarEventos();
+                }
             }
         }
     }
@@ -109,11 +156,10 @@ public class RecogerLlave : MonoBehaviour
     {
         bloqueada = true;
 
-        transform.position = posicionBloqueo;
-
+        if (keySocket != null)
+            transform.position = keySocket.position + bloqueoLocalOffset;
 
         StartCoroutine(AbrirAnimacion());
-
     }
 
     IEnumerator AbrirAnimacion()
@@ -135,13 +181,16 @@ public class RecogerLlave : MonoBehaviour
         if (other.CompareTag("KeySocket"))
         {
             encajada = true;
+
             zEncajada = transform.position.z;
+            xEncajada = transform.position.x;
+
             yEntrada = transform.position.y;
 
-            Vector3 p = transform.position;
-            p.x = xEncajada;
-            p.z = zEncajada;
-            transform.position = p;
+            if (keySocket == null)
+                keySocket = other.transform;
+
+            bloqueoLocalOffset = transform.position - keySocket.position;
         }
     }
 

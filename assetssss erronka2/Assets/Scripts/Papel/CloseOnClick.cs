@@ -7,7 +7,5 @@ public class CloseOnClick : MonoBehaviour
     void OnMouseDown()
     {
         PruebaInteracción.ToggleCanvas();
-
     }
-
 }

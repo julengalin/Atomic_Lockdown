@@ -7,17 +7,49 @@ public class AbrirCandado : MonoBehaviour
     public bool playMode = false;
     [SerializeField] Camera cam;
     Vector3 posicionInicial;
+    Quaternion rotacionInicial;
 
-    Vector3 candadoOffset = new Vector3(-0.381f, -0.923f, 2.288f);
+    Vector3 candadoOffset = new Vector3(1.0000f, 0.65f, 7.0672f);
+
+    public Vector3 candadoRotCorrecta = new Vector3(270f, 0f, 90f);
+    Quaternion candadoRotOffset;
+
+    public InteractionLock interactionLock;
+    public InteractionType tipo = InteractionType.CandadoNumerico;
 
     private void Start()
     {
         posicionInicial = gameObject.transform.position;
+        rotacionInicial = gameObject.transform.rotation;
+
+        if (cam == null) cam = Camera.main;
+        if (cam != null)
+            candadoRotOffset = Quaternion.Inverse(cam.transform.rotation) * Quaternion.Euler(candadoRotCorrecta);
+    }
+
+    Vector3 CamOffset(Camera c, Vector3 offset)
+    {
+        return c.transform.position
+             + c.transform.right * offset.x
+             + c.transform.up * offset.y
+             + c.transform.forward * offset.z;
     }
 
     void OnMouseDown()
     {
-        if(!playMode) ToggleState();
+        if (interactionLock != null)
+        {
+            if (interactionLock.tipoActual != InteractionType.None && interactionLock.tipoActual != tipo)
+            {
+                return;
+            }
+            else if (interactionLock.tipoActual == InteractionType.None)
+            {
+                interactionLock.Set(tipo);
+            }
+        }
+
+        if (!playMode) ToggleState();
     }
 
     public void ToggleState()
@@ -27,14 +59,24 @@ public class AbrirCandado : MonoBehaviour
 
         GetComponent<Collider>().enabled = !playMode;
 
-        transform.position = cam.transform.position + candadoOffset;
+        if (cam == null) cam = Camera.main;
 
-        if(!playMode) transform.position = posicionInicial; 
-        
+        if (playMode)
+        {
+            transform.position = CamOffset(cam, candadoOffset);
+            transform.rotation = cam.transform.rotation * candadoRotOffset;
+        }
+        else
+        {
+            transform.position = posicionInicial;
+            transform.rotation = rotacionInicial;
+        }
+
         if (canvasObject == null) return;
 
         canvasObject.SetActive(!canvasObject.activeSelf);
 
-
+        if (!playMode && interactionLock != null)
+            interactionLock.Limpiar();
     }
 }

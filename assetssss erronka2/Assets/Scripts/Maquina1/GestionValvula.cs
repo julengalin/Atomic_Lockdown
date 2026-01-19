@@ -5,6 +5,9 @@ public class GestionValvula : MonoBehaviour
     public Camera cam;
     public GameObject botonSalir;
 
+    public InteractionLock interactionLock;
+    public InteractionType tipo;
+
     public bool playMode = false;
 
     public Vector3 camPlayOffset = new Vector3(-9.184861f, 7.47298f, -16.25878f);
@@ -44,6 +47,18 @@ public class GestionValvula : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (interactionLock != null)
+        {
+            if (interactionLock.tipoActual != InteractionType.None && interactionLock.tipoActual != tipo)
+            {
+                return;
+            }
+            else if (interactionLock.tipoActual == InteractionType.None)
+            {
+                interactionLock.Set(tipo);
+            }
+        }
+
         if (!playMode) Entrar();
     }
 
@@ -88,6 +103,11 @@ public class GestionValvula : MonoBehaviour
 
         if (colHijo != null) colHijo.enabled = false;
         if (col != null) col.enabled = true;
+
+        if (interactionLock != null)
+        {
+            interactionLock.Limpiar();
+        }
     }
 
     public void Reiniciar()
@@ -127,5 +147,4 @@ public class GestionValvula : MonoBehaviour
     {
         return bloqueada;
     }
-
 }

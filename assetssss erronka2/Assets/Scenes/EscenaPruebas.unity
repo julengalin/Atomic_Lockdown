@@ -486,6 +486,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GestionValvula
   cam: {fileID: 1612774498}
   botonSalir: {fileID: 1062703362}
+  interactionLock: {fileID: 1338380384}
+  tipo: 5
   playMode: 0
   camPlayOffset: {x: 0.4771049, y: 6.94, z: 30.873293}
   camPlayRotation: {x: 12, y: 166, z: 0}
@@ -1015,6 +1017,51 @@ Transform:
   - {fileID: 1828620620}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1338380383
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1338380385}
+  - component: {fileID: 1338380384}
+  m_Layer: 0
+  m_Name: LockGeneral
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1338380384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1338380383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 719894e66188e6b438359ee132b98a5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractionLock
+  tipoActual: 0
+--- !u!4 &1338380385
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1338380383}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1478499030
 GameObject:
   m_ObjectHideFlags: 0
@@ -1248,7 +1295,7 @@ Transform:
   m_GameObject: {fileID: 1612774497}
   serializedVersion: 2
   m_LocalRotation: {x: 0.07565202, y: 0.7687496, z: -0.09256565, w: 0.6282774}
-  m_LocalPosition: {x: -38.457085, y: 20.555414, z: -21.619648}
+  m_LocalPosition: {x: -35, y: 20, z: -3.22}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1505,6 +1552,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GestionValvula
   cam: {fileID: 1612774498}
   botonSalir: {fileID: 1062703362}
+  interactionLock: {fileID: 1338380384}
+  tipo: 4
   playMode: 0
   camPlayOffset: {x: -9.184861, y: 7.47298, z: -16.25878}
   camPlayRotation: {x: 0, y: 29.463, z: 0}
@@ -1626,6 +1675,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
       objectReference: {fileID: 0}
+    - target: {fileID: 2379180634840247982, guid: 7e0ce8243ce29b34992c59ea578bc4f4, type: 3}
+      propertyPath: interactionLock
+      value: 
+      objectReference: {fileID: 1338380384}
     - target: {fileID: 5107753174470463767, guid: 7e0ce8243ce29b34992c59ea578bc4f4, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -1678,10 +1731,18 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 490570986071867699, guid: ee54acbe538962b419fde07f8502213c, type: 3}
+      propertyPath: interactionLock
+      value: 
+      objectReference: {fileID: 1338380384}
     - target: {fileID: 3517533850357447663, guid: ee54acbe538962b419fde07f8502213c, type: 3}
       propertyPath: cam
       value: 
       objectReference: {fileID: 1612774498}
+    - target: {fileID: 3517533850357447663, guid: ee54acbe538962b419fde07f8502213c, type: 3}
+      propertyPath: interactionLock
+      value: 
+      objectReference: {fileID: 1338380384}
     - target: {fileID: 4141202986595283712, guid: ee54acbe538962b419fde07f8502213c, type: 3}
       propertyPath: m_Camera
       value: 
@@ -1726,10 +1787,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6490553526438218104, guid: ee54acbe538962b419fde07f8502213c, type: 3}
+      propertyPath: interactionLock
+      value: 
+      objectReference: {fileID: 1338380384}
     - target: {fileID: 6598420651926865569, guid: ee54acbe538962b419fde07f8502213c, type: 3}
       propertyPath: m_Name
       value: candadoNumeros
       objectReference: {fileID: 0}
+    - target: {fileID: 8067696539580590097, guid: ee54acbe538962b419fde07f8502213c, type: 3}
+      propertyPath: interactionLock
+      value: 
+      objectReference: {fileID: 1338380384}
+    - target: {fileID: 8554784976829434525, guid: ee54acbe538962b419fde07f8502213c, type: 3}
+      propertyPath: interactionLock
+      value: 
+      objectReference: {fileID: 1338380384}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1993,6 +2066,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GiroValvulaVisual
   gestionValvula: {fileID: 1871052799}
+  interactionLock: {fileID: 1338380384}
+  tipo: 4
   minAngulo: 0
   maxAngulo: 360
   pasos: 10
@@ -2102,6 +2177,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
       objectReference: {fileID: 2100000, guid: c78a9c2ab54805e41ae73f4e1ba609cd, type: 2}
+    - target: {fileID: 4926987451817370663, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
+      propertyPath: interactionLock
+      value: 
+      objectReference: {fileID: 1338380384}
     - target: {fileID: 6460951641695617623, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -2144,7 +2223,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6781543781366699286, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -30.71
+      value: -5.709999
       objectReference: {fileID: 0}
     - target: {fileID: 6781543781366699286, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2170,10 +2249,38 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
       objectReference: {fileID: 0}
+    - target: {fileID: 7290772780718834889, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
+      propertyPath: m_Size.x
+      value: 0.0059705735
+      objectReference: {fileID: 0}
+    - target: {fileID: 7290772780718834889, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
+      propertyPath: m_Size.y
+      value: 0.005237766
+      objectReference: {fileID: 0}
+    - target: {fileID: 7290772780718834889, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
+      propertyPath: m_Size.z
+      value: 0.0027927281
+      objectReference: {fileID: 0}
+    - target: {fileID: 7290772780718834889, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
+      propertyPath: m_Center.x
+      value: -0.0009851324
+      objectReference: {fileID: 0}
+    - target: {fileID: 7290772780718834889, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
+      propertyPath: m_Center.y
+      value: 0.00037744184
+      objectReference: {fileID: 0}
+    - target: {fileID: 7290772780718834889, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
+      propertyPath: m_Center.z
+      value: 0.0011980429
+      objectReference: {fileID: 0}
     - target: {fileID: 7799700021054496744, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
       propertyPath: cam
       value: 
       objectReference: {fileID: 1612774498}
+    - target: {fileID: 7799700021054496744, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
+      propertyPath: interactionLock
+      value: 
+      objectReference: {fileID: 1338380384}
     - target: {fileID: 8959834186459084286, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.766
@@ -2327,6 +2434,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GiroValvulaVisual
   gestionValvula: {fileID: 367814762}
+  interactionLock: {fileID: 1338380384}
+  tipo: 5
   minAngulo: 0
   maxAngulo: 360
   pasos: 10
@@ -2389,5 +2498,6 @@ SceneRoots:
   - {fileID: 1612774501}
   - {fileID: 1085960859}
   - {fileID: 1746772059}
-  - {fileID: 24595852149748065}
+  - {fileID: 1338380385}
   - {fileID: 1303204567}
+  - {fileID: 24595852149748065}

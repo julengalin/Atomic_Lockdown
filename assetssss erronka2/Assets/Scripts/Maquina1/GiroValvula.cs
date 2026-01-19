@@ -4,6 +4,9 @@ public class GiroValvulaVisual : MonoBehaviour
 {
     public GestionValvula gestionValvula;
 
+    public InteractionLock interactionLock;
+    public InteractionType tipo;
+
     public float minAngulo = 0f;
     public float maxAngulo = 360f;
 
@@ -28,6 +31,18 @@ public class GiroValvulaVisual : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (interactionLock != null)
+        {
+            if (interactionLock.tipoActual != InteractionType.None && interactionLock.tipoActual != tipo)
+            {
+                return;
+            }
+            else if (interactionLock.tipoActual == InteractionType.None)
+            {
+                interactionLock.Set(tipo);
+            }
+        }
+
         if (gestionValvula == null) return;
         if (!gestionValvula.playMode) return;
 
@@ -47,6 +62,8 @@ public class GiroValvulaVisual : MonoBehaviour
         if (!arrastrando) return;
         if (gestionValvula.EstaBloqueada()) return;
 
+        if (interactionLock != null && interactionLock.tipoActual != tipo) return;
+
         if (Input.GetMouseButtonDown(0))
         {
             pressPoint = Input.mousePosition;
@@ -65,7 +82,6 @@ public class GiroValvulaVisual : MonoBehaviour
             if (gestionValvula != null)
                 gestionValvula.SetValorActual(AnguloAValor(anguloActual));
         }
-
     }
 
     int AnguloAValor(float angulo)

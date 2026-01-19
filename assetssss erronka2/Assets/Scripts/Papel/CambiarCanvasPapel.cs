@@ -5,20 +5,34 @@ public class CambiarCanvasPapel : MonoBehaviour
 {
     [SerializeField] private GameObject canvasObject;
 
-    private void Update()
-    {
-        if (Keyboard.current == null) return;
-
-        if (Keyboard.current.eKey.wasPressedThisFrame)
-        {
-            ToggleCanvas();
-        }
-    }
+    public InteractionLock interactionLock;
+    public InteractionType tipo = InteractionType.Papel;
 
     public void ToggleCanvas()
     {
         if (canvasObject == null) return;
 
-        canvasObject.SetActive(!canvasObject.activeSelf);
+        bool estabaAbierto = canvasObject.activeSelf;
+
+        if (estabaAbierto)
+        {
+            canvasObject.SetActive(false);
+            if (interactionLock != null) interactionLock.Limpiar();
+            return;
+        }
+
+        if (interactionLock != null)
+        {
+            if (interactionLock.tipoActual != InteractionType.None && interactionLock.tipoActual != tipo)
+            {
+                return;
+            }
+            else if (interactionLock.tipoActual == InteractionType.None)
+            {
+                interactionLock.Set(tipo);
+            }
+        }
+
+        canvasObject.SetActive(true);
     }
 }
