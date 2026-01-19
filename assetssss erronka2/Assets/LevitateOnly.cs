@@ -3,8 +3,8 @@ using UnityEngine;
 public class LevitateOnly : MonoBehaviour
 {
     [Header("Levitación (sin rotación)")]
-    public float amplitude = 0.12f; // cuánto sube/baja
-    public float speed = 0.6f;      // qué tan rápido
+    public float amplitude = 0.12f; 
+    public float speed = 0.6f;      
 
     [Header("Aleatorio")]
     public bool randomPhase = true;
@@ -22,10 +22,9 @@ public class LevitateOnly : MonoBehaviour
 
     void Update()
     {
-        // Mantener rotación fija siempre
         transform.rotation = startRot;
 
-        // Solo subir/bajar en Y
+     
         float yOffset = Mathf.Sin((Time.time + phase) * speed) * amplitude;
         transform.position = startPos + new Vector3(0f, yOffset, 0f);
     }
