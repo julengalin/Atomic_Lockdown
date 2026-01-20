@@ -1295,7 +1295,7 @@ Transform:
   m_GameObject: {fileID: 1612774497}
   serializedVersion: 2
   m_LocalRotation: {x: 0.07565202, y: 0.7687496, z: -0.09256565, w: 0.6282774}
-  m_LocalPosition: {x: -35, y: 20, z: -3.22}
+  m_LocalPosition: {x: -25.63, y: 20, z: -3.22}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1743,6 +1743,14 @@ PrefabInstance:
       propertyPath: interactionLock
       value: 
       objectReference: {fileID: 1338380384}
+    - target: {fileID: 3517533850357447663, guid: ee54acbe538962b419fde07f8502213c, type: 3}
+      propertyPath: candadoRotCorrecta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3517533850357447663, guid: ee54acbe538962b419fde07f8502213c, type: 3}
+      propertyPath: candadoRotCorrecta.z
+      value: 180
+      objectReference: {fileID: 0}
     - target: {fileID: 4141202986595283712, guid: ee54acbe538962b419fde07f8502213c, type: 3}
       propertyPath: m_Camera
       value: 

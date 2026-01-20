@@ -9,9 +9,9 @@ public class AbrirCandado : MonoBehaviour
     Vector3 posicionInicial;
     Quaternion rotacionInicial;
 
-    Vector3 candadoOffset = new Vector3(1.0000f, 0.65f, 7.0672f);
+    Vector3 candadoOffset = new Vector3(1.0000f, 0.65f, 5.5f);
 
-    public Vector3 candadoRotCorrecta = new Vector3(270f, 0f, 90f);
+    public Vector3 candadoRotCorrecta = new Vector3(0f, 0f, 90f);
     Quaternion candadoRotOffset;
 
     public InteractionLock interactionLock;
