@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - KeySocket
+  - PlayerCam
   layers:
   - Default
   - TransparentFX

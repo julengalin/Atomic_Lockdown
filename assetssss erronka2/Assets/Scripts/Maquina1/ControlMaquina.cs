@@ -28,7 +28,7 @@ public class ControlMaquina : MonoBehaviour
             valvulaAzul.Bloquear();
 
             if (abrirPuerta != null)
-                abrirPuerta.setSeAbre();
+                abrirPuerta.Abrir();
 
             luzAzul.setAbierto();
             luzRoja.setAbierto();

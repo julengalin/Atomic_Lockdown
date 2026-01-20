@@ -5,5 +5,6 @@ public enum InteractionType
     CandadoLlave,
     CandadoNumerico,
     ValvulaRoja,
-    ValvulaAzul
+    ValvulaAzul,
+    Cinematica,
 }
