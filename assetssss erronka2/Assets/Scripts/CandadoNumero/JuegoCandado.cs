@@ -17,6 +17,8 @@ public class JuegoCandado : MonoBehaviour
     [SerializeField] private int[] correctNumbers;
     [SerializeField] private int[] actualNumbers;
 
+    public ControlMaquina controlMaquina;
+
 
     private void Update()
     {
@@ -41,6 +43,7 @@ public class JuegoCandado : MonoBehaviour
 
     public void check()
     {
+
         int correct = 0;
         for (int i = 0; i < correctNumbers.Length; i++)
         {
@@ -55,8 +58,8 @@ public class JuegoCandado : MonoBehaviour
         if (correct == correctNumbers.Length)
         {
             Debug.Log("correct");
-
             ended = true;
+            controlMaquina.SetAzul();
         }
         else
         {

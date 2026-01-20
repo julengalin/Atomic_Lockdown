@@ -33,6 +33,8 @@ public class GestionValvula : MonoBehaviour
 
     bool bloqueada = false;
 
+    public ControlMaquina controlMaquina;
+
     private void Start()
     {
         valorActual = valorInicial;
@@ -56,6 +58,25 @@ public class GestionValvula : MonoBehaviour
             else if (interactionLock.tipoActual == InteractionType.None)
             {
                 interactionLock.Set(tipo);
+            }
+        }
+
+        if(tipo == InteractionType.ValvulaAzul)
+        {
+            Debug.Log("entra mouse azul");
+            if (controlMaquina.candadoAAbierto != true)
+            {
+                Debug.Log("azul cerrado");
+                return;
+            }
+        }
+        else if(tipo == InteractionType.ValvulaRoja)
+        {
+            Debug.Log("entra mouse azul");
+            if (controlMaquina.candadoRAbierto != true)
+            {
+                Debug.Log("rojo cerrado");
+                return;
             }
         }
 

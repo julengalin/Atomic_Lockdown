@@ -438,6 +438,8 @@ MonoBehaviour:
   abrirPuerta: {fileID: 491048176}
   luzAzul: {fileID: 7697652078957210646}
   luzRoja: {fileID: 1625234154}
+  candadoRAbierto: 0
+  candadoAAbierto: 0
 --- !u!1 &367814760
 GameObject:
   m_ObjectHideFlags: 0
@@ -500,6 +502,7 @@ MonoBehaviour:
   col: {fileID: 367814763}
   colHijo: {fileID: 7712196687816001241}
   gestionLuz: {fileID: 7697652078957210646}
+  controlMaquina: {fileID: 209615094}
 --- !u!65 &367814763
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1149,7 +1152,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1449555688}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &1449555692
 Camera:
   m_ObjectHideFlags: 0
@@ -1705,6 +1708,7 @@ MonoBehaviour:
   col: {fileID: 1871052800}
   colHijo: {fileID: 5785555432035176370}
   gestionLuz: {fileID: 1625234154}
+  controlMaquina: {fileID: 209615094}
 --- !u!65 &1871052800
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1954,6 +1958,10 @@ PrefabInstance:
       propertyPath: interactionLock
       value: 
       objectReference: {fileID: 1338380384}
+    - target: {fileID: 8770445488039456292, guid: ee54acbe538962b419fde07f8502213c, type: 3}
+      propertyPath: controlMaquina
+      value: 
+      objectReference: {fileID: 209615094}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2328,6 +2336,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
       objectReference: {fileID: 2100000, guid: c78a9c2ab54805e41ae73f4e1ba609cd, type: 2}
+    - target: {fileID: 4926987451817370663, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
+      propertyPath: controlMaquina
+      value: 
+      objectReference: {fileID: 209615094}
     - target: {fileID: 4926987451817370663, guid: efefb3c73d13ebc4ba3e8b4e24de44cf, type: 3}
       propertyPath: interactionLock
       value: 

@@ -12,6 +12,9 @@ public class ControlMaquina : MonoBehaviour
     public GestionLuz luzAzul;
     public GestionLuz luzRoja;
 
+    public bool candadoRAbierto = false;
+    public bool candadoAAbierto = false;
+
     private void Update()
     {
         if (yaSeAbrio) return;
@@ -33,5 +36,17 @@ public class ControlMaquina : MonoBehaviour
             luzAzul.setAbierto();
             luzRoja.setAbierto();
         }
+    }
+
+    public void SetRojo()
+    {
+        Debug.Log("entraRojo");
+        candadoRAbierto = true;
+    }
+
+    public void SetAzul()
+    {
+        Debug.Log("entraAzul");
+        candadoAAbierto = true;
     }
 }

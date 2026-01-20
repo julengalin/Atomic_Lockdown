@@ -25,13 +25,15 @@ public class RecogerLlave : MonoBehaviour
 
     bool bloqueada = false;
 
-    [SerializeField] Transform keySocket;
+    Transform keySocket;
 
     Vector3 bloqueoLocalOffset;
     float yTolerancia = 0.02f;
 
     public InteractionLock interactionLock;
     public InteractionType tipo = InteractionType.CandadoLlave;
+
+    public ControlMaquina controlMaquina;
 
     private void Start()
     {
@@ -66,7 +68,11 @@ public class RecogerLlave : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (!playing) gestionLlave.recogerLlave();
+        if (!playing)
+        {
+            gestionLlave.recogerLlave();
+            return;
+        }
 
         if (interactionLock.tipoActual != InteractionType.None && interactionLock.tipoActual != tipo)
         {
@@ -173,6 +179,7 @@ public class RecogerLlave : MonoBehaviour
 
         gestionLlave.llaveUsada();
         abrirCandadoLlave.salir();
+        controlMaquina.SetRojo();
     }
 
     private void OnTriggerEnter(Collider other)
