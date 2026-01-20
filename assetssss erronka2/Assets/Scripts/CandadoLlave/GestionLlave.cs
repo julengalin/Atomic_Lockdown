@@ -11,6 +11,8 @@ public class GestionLlave : MonoBehaviour
 
     [SerializeField] AbrirCandadoLlave abrirCandadoLlave;
 
+    public InteractionLock interactionLock;
+
     bool picked = false;
 
     public void abrirLlave()
@@ -18,6 +20,7 @@ public class GestionLlave : MonoBehaviour
         if (!picked)
         {
             StartCoroutine(MostrarError());
+            interactionLock.Limpiar();
         }
         else
         {

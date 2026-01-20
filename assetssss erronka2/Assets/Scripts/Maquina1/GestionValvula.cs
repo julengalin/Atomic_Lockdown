@@ -49,6 +49,25 @@ public class GestionValvula : MonoBehaviour
 
     private void OnMouseDown()
     {
+
+        if (tipo == InteractionType.ValvulaAzul)
+        {
+            Debug.Log("entra mouse azul");
+            if (controlMaquina.candadoAAbierto != true)
+            {
+                Debug.Log("azul cerrado");
+                return;
+            }
+        }
+        else if (tipo == InteractionType.ValvulaRoja)
+        {
+            Debug.Log("entra mouse azul");
+            if (controlMaquina.candadoRAbierto != true)
+            {
+                Debug.Log("rojo cerrado");
+                return;
+            }
+        }
         if (interactionLock != null)
         {
             if (interactionLock.tipoActual != InteractionType.None && interactionLock.tipoActual != tipo)
@@ -61,24 +80,6 @@ public class GestionValvula : MonoBehaviour
             }
         }
 
-        if(tipo == InteractionType.ValvulaAzul)
-        {
-            Debug.Log("entra mouse azul");
-            if (controlMaquina.candadoAAbierto != true)
-            {
-                Debug.Log("azul cerrado");
-                return;
-            }
-        }
-        else if(tipo == InteractionType.ValvulaRoja)
-        {
-            Debug.Log("entra mouse azul");
-            if (controlMaquina.candadoRAbierto != true)
-            {
-                Debug.Log("rojo cerrado");
-                return;
-            }
-        }
 
         if (!playMode) Entrar();
     }
@@ -143,6 +144,11 @@ public class GestionValvula : MonoBehaviour
     {
         Reiniciar();
         Salir();
+    }
+
+    public void aviso()
+    {
+        controlMaquina.avisoSalida();
     }
 
     public void SetValorActual(int nuevoValor)

@@ -49,4 +49,10 @@ public class ControlMaquina : MonoBehaviour
         Debug.Log("entraAzul");
         candadoAAbierto = true;
     }
+
+    public void avisoSalida()
+    {
+        valvulaAzul.JugadorHaSalido();
+        valvulaRoja.JugadorHaSalido();
+    }
 }
