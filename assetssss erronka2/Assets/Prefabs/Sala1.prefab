@@ -589,7 +589,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 4439120811277894211}
         m_TargetAssemblyTypeName: GestionValvula, Assembly-CSharp
-        m_MethodName: JugadorHaSalido
+        m_MethodName: aviso
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
