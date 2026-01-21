@@ -59,4 +59,9 @@ public class GestionLiquido : MonoBehaviour
         fill = Mathf.Lerp(fillMin, fillMax, t);
         rend.material.SetFloat("_Fill", fill);
     }
+
+    public float GetFill()
+    {
+        return fill;
+    }
 }

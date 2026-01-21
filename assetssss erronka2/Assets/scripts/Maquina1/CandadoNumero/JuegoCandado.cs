@@ -17,7 +17,7 @@ public class JuegoCandado : MonoBehaviour
     [SerializeField] private int[] correctNumbers;
     [SerializeField] private int[] actualNumbers;
 
-    public ControlMaquina controlMaquina;
+    public ControlMaquina1 controlMaquina;
 
 
     private void Update()

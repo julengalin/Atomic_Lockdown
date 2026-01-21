@@ -33,7 +33,7 @@ public class RecogerLlave : MonoBehaviour
     public InteractionLock interactionLock;
     public InteractionType tipo = InteractionType.CandadoLlave;
 
-    public ControlMaquina controlMaquina;
+    public ControlMaquina1 controlMaquina;
 
     private void Start()
     {

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ControlMaquina : MonoBehaviour
+public class ControlMaquina1 : MonoBehaviour
 {
     public GestionValvula valvulaRoja;
     public GestionValvula valvulaAzul;

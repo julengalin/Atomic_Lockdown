@@ -3,6 +3,8 @@ using UnityEngine.InputSystem;
 
 public class GirarPalanca : MonoBehaviour
 {
+    [SerializeField] int id = 1;
+
     [SerializeField] float minAngulo = 0f;
     [SerializeField] float maxAngulo = 120f;
     [SerializeField] float velocidad = 0.1f;
@@ -14,6 +16,7 @@ public class GirarPalanca : MonoBehaviour
     [SerializeField] float gradosPorPaso = 15f;
 
     [SerializeField] GestionLiquido gestionLiquido;
+    [SerializeField] ControlMaquina2 controlMaquina2;
 
     public InteractionLock interactionLock;
     public InteractionType tipo = InteractionType.Palanca;
@@ -75,6 +78,9 @@ public class GirarPalanca : MonoBehaviour
 
         if (interactionLock != null && interactionLock.tipoActual == tipo)
             interactionLock.Limpiar();
+
+        if (controlMaquina2 != null && gestionLiquido != null)
+            controlMaquina2.UpdateList(id, gestionLiquido.GetFill());
     }
 
     void SetAngulo(float angulo)
