@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 public class SlidingDoor : MonoBehaviour
@@ -15,6 +15,11 @@ public class SlidingDoor : MonoBehaviour
     [Header("Timing")]
     public float stayOpenTime = 3f;
 
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip openSound;
+    public AudioClip closeSound; // opcional
+
     private Vector3 closedPos;
     private Vector3 openPos;
 
@@ -25,6 +30,10 @@ public class SlidingDoor : MonoBehaviour
     {
         closedPos = transform.position;
         openPos = closedPos + slideDirection.normalized * slideAmount;
+
+        // Seguridad: si no asignas AudioSource, lo busca en la puerta
+        if (!audioSource)
+            audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
@@ -44,6 +53,10 @@ public class SlidingDoor : MonoBehaviour
     {
         isMoving = true;
 
+        // 🔊 SONIDO DE ABRIR
+        if (audioSource && openSound)
+            audioSource.PlayOneShot(openSound);
+
         // ABRIR
         while (Vector3.Distance(transform.position, openPos) > 0.01f)
         {
@@ -57,6 +70,10 @@ public class SlidingDoor : MonoBehaviour
 
         // ESPERAR ABIERTA
         yield return new WaitForSeconds(stayOpenTime);
+
+        // 🔊 SONIDO DE CERRAR (opcional)
+        if (audioSource && closeSound)
+            audioSource.PlayOneShot(closeSound);
 
         // CERRAR
         isMoving = true;
