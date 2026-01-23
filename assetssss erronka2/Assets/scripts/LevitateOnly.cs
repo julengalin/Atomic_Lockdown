@@ -1,31 +1,32 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class LevitateOnly : MonoBehaviour
 {
-    [Header("Levitación (sin rotación)")]
-    public float amplitude = 0.12f; 
-    public float speed = 0.6f;      
-
-    [Header("Aleatorio")]
+    [Header("Levitación (con físicas)")]
+    public float amplitude = 0.12f;
+    public float speed = 0.6f;
     public bool randomPhase = true;
 
+    private Rigidbody rb;
     private Vector3 startPos;
-    private Quaternion startRot;
     private float phase;
 
     void Start()
     {
-        startPos = transform.position;
-        startRot = transform.rotation;
+        rb = GetComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+
+        startPos = rb.position;
         phase = randomPhase ? Random.Range(0f, 999f) : 0f;
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        transform.rotation = startRot;
-
-     
         float yOffset = Mathf.Sin((Time.time + phase) * speed) * amplitude;
-        transform.position = startPos + new Vector3(0f, yOffset, 0f);
+        Vector3 targetPos = startPos + new Vector3(0f, yOffset, 0f);
+
+        rb.MovePosition(targetPos);
     }
 }
