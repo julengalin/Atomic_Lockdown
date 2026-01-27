@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class ElevatorController : MonoBehaviour
 {
+    public Transform platform;     // <-- arrastra aquí "suelo"
     public Transform topPoint;
     public Transform bottomPoint;
     public float speed = 2f;
@@ -11,17 +12,17 @@ public class ElevatorController : MonoBehaviour
 
     void Update()
     {
-        if (!moving) return;
+        if (!moving || platform == null) return;
 
         Transform target = goingUp ? topPoint : bottomPoint;
 
-        transform.position = Vector3.MoveTowards(
-            transform.position,
+        platform.position = Vector3.MoveTowards(
+            platform.position,
             target.position,
             speed * Time.deltaTime
         );
 
-        if (Vector3.Distance(transform.position, target.position) < 0.01f)
+        if (Vector3.Distance(platform.position, target.position) < 0.01f)
             moving = false;
     }
 
@@ -29,5 +30,6 @@ public class ElevatorController : MonoBehaviour
     {
         goingUp = !goingUp;
         moving = true;
+        Debug.Log("ToggleElevator -> " + (goingUp ? "SUBE" : "BAJA"));
     }
 }
