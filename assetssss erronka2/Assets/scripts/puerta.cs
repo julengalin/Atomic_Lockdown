@@ -15,6 +15,8 @@ public class SlidingDoor : MonoBehaviour
     [Header("Timing")]
     public float stayOpenTime = 3f;
 
+    public bool blocked = false;
+
     private Vector3 closedPos;
     private Vector3 openPos;
 
@@ -29,6 +31,9 @@ public class SlidingDoor : MonoBehaviour
 
     void Update()
     {
+        if (blocked)
+            return;
+
         if (!player || isMoving || isOpen)
             return;
 
@@ -38,6 +43,21 @@ public class SlidingDoor : MonoBehaviour
         {
             StartCoroutine(OpenDoorRoutine());
         }
+    }
+
+    public void Unlock()
+    {
+        blocked = false;
+    }
+
+    public void ForceOpen()
+    {
+        blocked = false;
+
+        if (isMoving || isOpen)
+            return;
+
+        StartCoroutine(OpenDoorRoutine());
     }
 
     IEnumerator OpenDoorRoutine()

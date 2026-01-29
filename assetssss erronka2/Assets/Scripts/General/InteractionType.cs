@@ -8,4 +8,5 @@ public enum InteractionType
     ValvulaAzul,
     Cinematica,
     Palanca,
+    Tarjeta,
 }

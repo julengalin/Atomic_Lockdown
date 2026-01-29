@@ -4,6 +4,12 @@ public class EnemigoHit : MonoBehaviour
 {
     [SerializeField] int disparosNecesarios = 6;
     int disparosRecibidos;
+    public GameObject card;
+
+    private void Awake()
+    {
+        card.SetActive(false);
+    }
 
     public void RecibirDisparo()
     {
@@ -14,6 +20,7 @@ public class EnemigoHit : MonoBehaviour
         if (disparosRecibidos >= disparosNecesarios)
         {
             Destroy(gameObject);
+            card.SetActive(true);
         }
     }
 }
