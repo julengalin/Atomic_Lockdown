@@ -1,19 +1,26 @@
-using System.Collections;
+ï»¿using System.Collections;
 using UnityEngine;
 
 public class HallwayChaseEasy : MonoBehaviour
 {
-    [Header("Arrastra aquí")]
+    [Header("Arrastra aquÃ­")]
     public Transform player;
-    public Transform monsterRoot;
+    public Transform monsterRoot;   // Objeto que tiene el Animator
     public Transform pointB;
 
     [Header("Movimiento")]
     public float monsterSpeed = 3.5f;
     public float rotateSpeed = 10f;
 
-    [Header("Animación")]
-    public string walkingBool = "IsWalking";
+    [Header("AnimaciÃ³n")]
+    public string runningBool = "IsRunning";      // <- ahora usamos IsRunning
+    public string startIdleStateName = "idle";    // <- pon EXACTO el nombre del estado idle (en tu captura es "idle")
+
+    [Header("Audio (Susto)")]
+    public AudioSource scareAudioSource;
+    public AudioClip scareClip;
+    [Range(0f, 1f)] public float scareVolume = 1f;
+    public bool playScareSoundOnce = true;
 
     [Header("Reset")]
     public float reachDistanceToB = 0.6f;
@@ -29,9 +36,14 @@ public class HallwayChaseEasy : MonoBehaviour
 
     bool isChasing = false;
     bool triggered = false;
+    bool scareSoundPlayed = false;
+
+    int runningBoolHash;
 
     void Awake()
     {
+        runningBoolHash = Animator.StringToHash(runningBool);
+
         if (!player)
         {
             var p = GameObject.FindGameObjectWithTag("Player");
@@ -50,8 +62,23 @@ public class HallwayChaseEasy : MonoBehaviour
             playerStartPos = player.position;
             playerStartRot = player.rotation;
         }
+    }
 
-        SetIdle();
+    void Start()
+    {
+        if (monsterAnimator)
+        {
+            monsterAnimator.Rebind();
+            monsterAnimator.Update(0f);
+
+            monsterAnimator.SetBool(runningBoolHash, false);
+            monsterAnimator.Play(startIdleStateName, 0, 0f);
+            monsterAnimator.Update(0f);
+        }
+        else
+        {
+            Debug.LogError("[HallwayChaseEasy] No encuentro Animator. Revisa monsterRoot (tiene que ser el objeto con Animator).");
+        }
     }
 
     void OnTriggerEnter(Collider other)
@@ -63,7 +90,18 @@ public class HallwayChaseEasy : MonoBehaviour
         if (!isPlayer) return;
 
         triggered = true;
+
+        PlayScareSound();
         StartCoroutine(ChaseRoutine());
+    }
+
+    void PlayScareSound()
+    {
+        if (!scareAudioSource || !scareClip) return;
+        if (playScareSoundOnce && scareSoundPlayed) return;
+
+        scareAudioSource.PlayOneShot(scareClip, scareVolume);
+        scareSoundPlayed = true;
     }
 
     IEnumerator ChaseRoutine()
@@ -77,13 +115,12 @@ public class HallwayChaseEasy : MonoBehaviour
             yield break;
         }
 
-        SetWalk();
+        SetRun();
 
         while (true)
         {
-            // mover hacia el player (sin navmesh)
             Vector3 target = player.position;
-            target.y = monsterRoot.position.y; // evita subir/bajar raro
+            target.y = monsterRoot.position.y;
 
             monsterRoot.position = Vector3.MoveTowards(
                 monsterRoot.position,
@@ -91,15 +128,13 @@ public class HallwayChaseEasy : MonoBehaviour
                 monsterSpeed * Time.deltaTime
             );
 
-            // rotar hacia el player
-            Vector3 dir = (target - monsterRoot.position);
+            Vector3 dir = target - monsterRoot.position;
             if (dir.sqrMagnitude > 0.0001f)
             {
                 Quaternion look = Quaternion.LookRotation(dir);
                 monsterRoot.rotation = Quaternion.Slerp(monsterRoot.rotation, look, rotateSpeed * Time.deltaTime);
             }
 
-            // si llega al punto B -> reset
             if (Vector3.Distance(monsterRoot.position, pointB.position) <= reachDistanceToB)
                 break;
 
@@ -119,7 +154,6 @@ public class HallwayChaseEasy : MonoBehaviour
     {
         if (player)
         {
-            // Si el player tiene CharacterController, hay que apagarlo para teleport
             var cc = player.GetComponent<CharacterController>();
             if (cc) cc.enabled = false;
 
@@ -128,7 +162,6 @@ public class HallwayChaseEasy : MonoBehaviour
 
             if (cc) cc.enabled = true;
 
-            // Si tiene Rigidbody, frenar
             var rb = player.GetComponent<Rigidbody>();
             if (rb)
             {
@@ -144,15 +177,21 @@ public class HallwayChaseEasy : MonoBehaviour
         }
 
         SetIdle();
+
+        if (monsterAnimator)
+        {
+            monsterAnimator.Play(startIdleStateName, 0, 0f);
+            monsterAnimator.Update(0f);
+        }
     }
 
-    void SetWalk()
+    void SetRun()
     {
-        if (monsterAnimator) monsterAnimator.SetBool(walkingBool, true);
+        if (monsterAnimator) monsterAnimator.SetBool(runningBoolHash, true);
     }
 
     void SetIdle()
     {
-        if (monsterAnimator) monsterAnimator.SetBool(walkingBool, false);
+        if (monsterAnimator) monsterAnimator.SetBool(runningBoolHash, false);
     }
 }
