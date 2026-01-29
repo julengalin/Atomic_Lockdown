@@ -137,4 +137,4 @@ MonoBehaviour:
   linePrefab: {fileID: 3614634969672187302, guid: e8f8bde0909b33941a014b7e56edd0fb, type: 3}
   shootingPoint: {fileID: 6514883737812691876}
   maxLineDistance: 5
-  lineShowTimer: 0.3
+  lineShowTimer: 1

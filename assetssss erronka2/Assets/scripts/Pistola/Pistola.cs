@@ -18,14 +18,29 @@ public class Pistola : MonoBehaviour
     void Disparar()
     {
         Debug.Log("Disparo");
+
         LineRenderer line = Instantiate(linePrefab);
         line.positionCount = 2;
         line.SetPosition(0, shootingPoint.position);
 
         Vector3 endPoint = shootingPoint.position + shootingPoint.forward * maxLineDistance;
 
-        line.SetPosition(1, endPoint);
+        if (Physics.Raycast(shootingPoint.position, shootingPoint.forward, out RaycastHit hit, maxLineDistance))
+        {
 
+            EnemigoHit e1 = hit.collider.GetComponent<EnemigoHit>();
+            EnemigoHit e2 = hit.collider.GetComponentInParent<EnemigoHit>();
+
+            if (e2 != null) e2.RecibirDisparo();
+
+            endPoint = hit.point;
+        }
+        else
+        {
+            Debug.Log("No hit");
+        }
+
+        line.SetPosition(1, endPoint);
         Destroy(line.gameObject, lineShowTimer);
     }
 }
