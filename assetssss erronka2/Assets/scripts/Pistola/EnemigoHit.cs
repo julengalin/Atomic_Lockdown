@@ -1,26 +1,35 @@
 using UnityEngine;
 
-public class EnemigoHit : MonoBehaviour
+public class EnemigoHit : MonoBehaviour, IRecibeDisparo
 {
     [SerializeField] int disparosNecesarios = 6;
     int disparosRecibidos;
+
     public GameObject card;
 
-    private void Awake()
+    [SerializeField] DisparoTipo recibeTipo = DisparoTipo.Any;
+
+    void Awake()
     {
-        card.SetActive(false);
+        if (card != null)
+            card.SetActive(false);
     }
 
-    public void RecibirDisparo()
+    public void RecibirDisparo(DisparoTipo tipo)
     {
+        if (recibeTipo != DisparoTipo.Any && tipo != recibeTipo)
+            return;
+
         Debug.Log("Disparo recibido raycast");
 
         disparosRecibidos++;
 
         if (disparosRecibidos >= disparosNecesarios)
         {
+            if (card != null)
+                card.SetActive(true);
+
             Destroy(gameObject);
-            card.SetActive(true);
         }
     }
 }

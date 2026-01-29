@@ -7,6 +7,8 @@ public class Pistola : MonoBehaviour
     public float maxLineDistance = 5;
     public float lineShowTimer = 0.3f;
 
+    public DisparoTipo tipoDisparo = DisparoTipo.Rojo;
+
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -17,8 +19,6 @@ public class Pistola : MonoBehaviour
 
     void Disparar()
     {
-        Debug.Log("Disparo");
-
         LineRenderer line = Instantiate(linePrefab);
         line.positionCount = 2;
         line.SetPosition(0, shootingPoint.position);
@@ -27,17 +27,10 @@ public class Pistola : MonoBehaviour
 
         if (Physics.Raycast(shootingPoint.position, shootingPoint.forward, out RaycastHit hit, maxLineDistance))
         {
-
-            EnemigoHit e1 = hit.collider.GetComponent<EnemigoHit>();
-            EnemigoHit e2 = hit.collider.GetComponentInParent<EnemigoHit>();
-
-            if (e2 != null) e2.RecibirDisparo();
+            IRecibeDisparo r = hit.collider.GetComponentInParent<IRecibeDisparo>();
+            if (r != null) r.RecibirDisparo(tipoDisparo);
 
             endPoint = hit.point;
-        }
-        else
-        {
-            Debug.Log("No hit");
         }
 
         line.SetPosition(1, endPoint);
