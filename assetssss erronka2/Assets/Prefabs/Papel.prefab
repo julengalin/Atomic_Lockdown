@@ -96,7 +96,7 @@ MonoBehaviour:
   m_fontSize: 50
   m_fontSizeBase: 50
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -417,6 +417,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CanvasToggle
   canvasObject: {fileID: 5107753174470463767}
+  interactionLock: {fileID: 0}
+  tipo: 1
 --- !u!1 &3816923965150478806
 GameObject:
   m_ObjectHideFlags: 0
@@ -723,6 +725,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 17ffd793b4d5a1b43be63aaba4103eff, type: 2}
+  - {fileID: 2100000, guid: c78a9c2ab54805e41ae73f4e1ba609cd, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

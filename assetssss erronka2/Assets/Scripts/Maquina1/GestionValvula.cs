@@ -33,7 +33,7 @@ public class GestionValvula : MonoBehaviour
 
     bool bloqueada = false;
 
-    public ControlMaquina controlMaquina;
+    public ControlMaquina1 controlMaquina;
 
     private void Start()
     {

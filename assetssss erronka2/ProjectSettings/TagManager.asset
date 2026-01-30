@@ -6,6 +6,8 @@ TagManager:
   tags:
   - KeySocket
   - PlayerCam
+  - Weight
+  - Disparo
   layers:
   - Default
   - TransparentFX
