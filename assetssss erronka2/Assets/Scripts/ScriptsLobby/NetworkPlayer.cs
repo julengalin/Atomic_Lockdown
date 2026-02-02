@@ -21,6 +21,17 @@ public class NetworkPlayer : NetworkBehaviour
             
             }
         }
+        if (IsServer)
+        {
+            Transform spawn = SpawnManager.Instance.GetNextSpawnPoint();
+            if (spawn != null)
+            {
+                transform.SetPositionAndRotation(
+                    spawn.position,
+                    spawn.rotation
+                );
+            }
+        }
     }
     void Update()
     {
