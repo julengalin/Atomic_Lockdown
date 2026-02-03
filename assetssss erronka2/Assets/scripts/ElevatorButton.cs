@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.XR;
 
 public class ElevatorButton : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class ElevatorButton : MonoBehaviour
 
         audioSource.playOnAwake = false;
         audioSource.loop = false;
-        audioSource.spatialBlend = 0f; // 2D para evitar problemas
+        audioSource.spatialBlend = 0f; // 2D
         audioSource.volume = volume;
     }
 
@@ -28,12 +29,23 @@ public class ElevatorButton : MonoBehaviour
     {
         if (!playerInside) return;
 
-        if (Input.GetKeyDown(KeyCode.E))
+        // Leer mando derecho (Quest)
+        InputDevice rightHand =
+            InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+
+        // Gatillo trasero (Grip Button)
+        bool gripPressed = false;
+
+        if (rightHand.TryGetFeatureValue(CommonUsages.gripButton, out gripPressed)
+            && gripPressed)
         {
-            Debug.Log("E pulsada dentro del botón");
+            Debug.Log("Grip derecho pulsado dentro del botón");
 
             PlaySound();
             elevator.ToggleElevator();
+
+            // Evitar que se active cada frame mientras lo mantienes pulsado
+            playerInside = false;
         }
     }
 
@@ -63,7 +75,7 @@ public class ElevatorButton : MonoBehaviour
             return;
         }
 
-        audioSource.Stop(); // por si acaso
+        audioSource.Stop();
         audioSource.clip = buttonSound;
         audioSource.volume = volume;
         audioSource.Play();
@@ -72,6 +84,7 @@ public class ElevatorButton : MonoBehaviour
     void OnGUI()
     {
         if (playerInside)
-            GUI.Label(new Rect(20, 20, 400, 30), "Klikatu E igogailua erabiltzeko");
+            GUI.Label(new Rect(20, 20, 400, 30),
+                "Pulsa el Grip derecho para usar el ascensor");
     }
 }
