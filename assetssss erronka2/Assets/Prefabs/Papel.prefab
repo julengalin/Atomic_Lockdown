@@ -93,7 +93,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
+  m_fontSize: 72
   m_fontSizeBase: 50
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -417,8 +417,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CanvasToggle
   canvasObject: {fileID: 5107753174470463767}
+  cam: {fileID: 0}
+  offset: {x: 0, y: 0, z: 1.5}
+  faceCamera: 1
   interactionLock: {fileID: 0}
   tipo: 1
+  toggleCooldown: 0.15
 --- !u!1 &3816923965150478806
 GameObject:
   m_ObjectHideFlags: 0
@@ -567,13 +571,14 @@ GameObject:
   - component: {fileID: 330019777738406289}
   - component: {fileID: 483496412091505614}
   - component: {fileID: 8316305664440382461}
+  - component: {fileID: 9064679664015771664}
   m_Layer: 5
   m_Name: NotaCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5738066065321129618
 RectTransform:
   m_ObjectHideFlags: 0
@@ -658,6 +663,25 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &9064679664015771664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5107753174470463767}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7951c64acb0fa62458bf30a60089fe2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.XR.Interaction.Toolkit::UnityEngine.XR.Interaction.Toolkit.UI.TrackedDeviceGraphicRaycaster
+  m_IgnoreReversedGraphics: 0
+  m_CheckFor2DOcclusion: 0
+  m_CheckFor3DOcclusion: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RaycastTriggerInteraction: 1
 --- !u!1 &6749810537327984393
 GameObject:
   m_ObjectHideFlags: 0
