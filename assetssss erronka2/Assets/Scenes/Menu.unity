@@ -187,6 +187,14 @@ PrefabInstance:
       propertyPath: m_hasFontAssetChanged
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2062052021904612554, guid: 17765563a405c244c82dc51e1fc5f8b9, type: 3}
+      propertyPath: speed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2062052021904612554, guid: 17765563a405c244c82dc51e1fc5f8b9, type: 3}
+      propertyPath: minAlpha
+      value: 0.6
+      objectReference: {fileID: 0}
     - target: {fileID: 5087462013422452466, guid: 17765563a405c244c82dc51e1fc5f8b9, type: 3}
       propertyPath: m_fontAsset
       value: 
