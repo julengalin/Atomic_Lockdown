@@ -2,12 +2,13 @@ using UnityEngine;
 
 public class EnemigoHit : MonoBehaviour, IRecibeDisparo
 {
-    [SerializeField] int disparosNecesarios = 6;
-    int disparosRecibidos;
+    [Header("Requisitos")]
+    [SerializeField] int disparosPorColor = 3;
+
+    int disparosRojos = 0;
+    int disparosAzules = 0;
 
     public GameObject card;
-
-    [SerializeField] DisparoTipo recibeTipo = DisparoTipo.Any;
 
     void Awake()
     {
@@ -17,14 +18,18 @@ public class EnemigoHit : MonoBehaviour, IRecibeDisparo
 
     public void RecibirDisparo(DisparoTipo tipo)
     {
-        if (recibeTipo != DisparoTipo.Any && tipo != recibeTipo)
+        if (tipo == DisparoTipo.Rojo)
+            disparosRojos++;
+        else if (tipo == DisparoTipo.Azul)
+            disparosAzules++;
+        else
             return;
 
-        Debug.Log("Disparo recibido raycast");
+        Debug.Log($"Rojos: {disparosRojos} | Azules: {disparosAzules}");
 
-        disparosRecibidos++;
-
-        if (disparosRecibidos >= disparosNecesarios)
+        // Solo muere si AMBOS colores cumplen
+        if (disparosRojos >= disparosPorColor &&
+            disparosAzules >= disparosPorColor)
         {
             if (card != null)
                 card.SetActive(true);
