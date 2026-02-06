@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Unity.Services.Authentication;
 using Unity.Services.Authentication.PlayerAccounts;
@@ -9,18 +9,33 @@ using UnityEngine.SceneManagement;
 public class LoginManager : MonoBehaviour
 {
     [Header("Scene")]
-    public string sceneAfterLogin = "game";
+    public string sceneAfterLogin = "Lobby";
+    public string sceneAfterSignOut = "login"; // pon aquí tu escena login
+
+    [Header("Sign Out")]
+    public bool clearSessionOnSignOut = true;
+
     private bool hasLoadedScene = false;
 
     private async void Awake()
     {
+        await InitServicesIfNeeded();
+
+        // Evita duplicar el evento si recargas escena
+        PlayerAccountService.Instance.SignedIn -= SignInOrLinkWithUnity;
+        PlayerAccountService.Instance.SignedIn += SignInOrLinkWithUnity;
+    }
+
+    private async Task InitServicesIfNeeded()
+    {
+        if (UnityServices.State == ServicesInitializationState.Initialized)
+            return;
+
         if (UnityServices.State == ServicesInitializationState.Uninitialized)
         {
             Debug.Log("Services Initializing");
             await UnityServices.InitializeAsync();
         }
-
-        PlayerAccountService.Instance.SignedIn += SignInOrLinkWithUnity;
     }
 
     private void LoadGameSceneOnce()
@@ -34,7 +49,9 @@ public class LoginManager : MonoBehaviour
     {
         try
         {
-            // 1. Player is not yet authenticated, signing up with Unity
+            await InitServicesIfNeeded();
+
+            // 1) No autenticado -> login con Unity Player Account
             if (!AuthenticationService.Instance.IsSignedIn)
             {
                 Debug.Log("Signing up with Unity Player Account...");
@@ -42,12 +59,11 @@ public class LoginManager : MonoBehaviour
                     PlayerAccountService.Instance.AccessToken
                 );
                 Debug.Log("Successfully signed up with Unity Player Account");
-
                 LoadGameSceneOnce();
                 return;
             }
 
-            // 2. Player is authenticated, but does not yet have a Unity ID linked, so let's link
+            // 2) Autenticado pero no linkeado -> link
             if (!HasUnityID())
             {
                 Debug.Log("Linking anonymous account to Unity...");
@@ -55,17 +71,19 @@ public class LoginManager : MonoBehaviour
                     PlayerAccountService.Instance.AccessToken
                 );
                 Debug.Log("Successfully linked anonymous account!");
-
                 LoadGameSceneOnce();
                 return;
             }
 
-            // 3. Player has authentication and a Unity ID
+            // 3) Ya está ok
             Debug.Log("Player is already signed in to their Unity Player Account");
-
             LoadGameSceneOnce();
         }
         catch (RequestFailedException ex)
+        {
+            Debug.LogException(ex);
+        }
+        catch (Exception ex)
         {
             Debug.LogException(ex);
         }
@@ -78,7 +96,16 @@ public class LoginManager : MonoBehaviour
 
     async void Start()
     {
-        // Si hay sesi�n previa, intentamos re-loguear
+        await InitServicesIfNeeded();
+
+        // Si ya estás logueado, no repitas
+        if (AuthenticationService.Instance.IsSignedIn)
+        {
+            Debug.Log("Already signed in, skipping auto sign-in.");
+            return;
+        }
+
+        // Si hay sesión previa, intentamos re-loguear
         if (!AuthenticationService.Instance.SessionTokenExists)
         {
             Debug.Log("Session Token not found");
@@ -93,14 +120,29 @@ public class LoginManager : MonoBehaviour
             Debug.Log("Returning player signed in!");
             LoadGameSceneOnce();
         }
+        catch (RequestFailedException e)
+        {
+            Debug.LogException(e);
+        }
         catch (Exception e)
         {
             Debug.LogException(e);
         }
     }
 
+    // BOTÓN: ANONIMO
     public async void StartAnonymousSignIn()
     {
+        await InitServicesIfNeeded();
+
+        // Evita el error: "The player is already signed in"
+        if (AuthenticationService.Instance.IsSignedIn)
+        {
+            Debug.Log("Already signed in -> going next scene.");
+            LoadGameSceneOnce();
+            return;
+        }
+
         await SignUpAnonymouslyAsync();
     }
 
@@ -110,23 +152,25 @@ public class LoginManager : MonoBehaviour
         {
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
             Debug.Log("Sign in anonymously succeeded!");
-
             Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}");
 
             LoadGameSceneOnce();
-        }
-        catch (AuthenticationException ex)
-        {
-            Debug.LogException(ex);
         }
         catch (RequestFailedException ex)
         {
             Debug.LogException(ex);
         }
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+        }
     }
 
+    // BOTÓN: UNITY
     public async void StartUnitySignInAsync()
     {
+        await InitServicesIfNeeded();
+
         if (PlayerAccountService.Instance.IsSignedIn)
         {
             SignInWithUnity();
@@ -141,12 +185,26 @@ public class LoginManager : MonoBehaviour
         {
             Debug.LogException(ex);
         }
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+        }
     }
 
     async void SignInWithUnity()
     {
         try
         {
+            await InitServicesIfNeeded();
+
+            // Si ya estás logueado, no repitas
+            if (AuthenticationService.Instance.IsSignedIn)
+            {
+                Debug.Log("Already signed in -> going next scene.");
+                LoadGameSceneOnce();
+                return;
+            }
+
             await AuthenticationService.Instance.SignInWithUnityAsync(
                 PlayerAccountService.Instance.AccessToken
             );
@@ -157,26 +215,45 @@ public class LoginManager : MonoBehaviour
         {
             Debug.LogException(ex);
         }
-    }
-
-    private async Task LinkWithUnityAsync(string accessToken)
-    {
-        try
-        {
-            await AuthenticationService.Instance.LinkWithUnityAsync(accessToken);
-            Debug.Log("Link is successful.");
-
-            LoadGameSceneOnce();
-        }
-        catch (AuthenticationException ex) when (ex.ErrorCode == AuthenticationErrorCodes.AccountAlreadyLinked)
-        {
-            Debug.LogError("This user is already linked with another account. Log in instead.");
-        }
-        catch (AuthenticationException ex)
+        catch (Exception ex)
         {
             Debug.LogException(ex);
         }
+    }
+
+    // ✅ BOTÓN: SIGN OUT
+    public async void SignOut()
+    {
+        try
+        {
+            await InitServicesIfNeeded();
+
+            if (AuthenticationService.Instance.IsSignedIn)
+            {
+                AuthenticationService.Instance.SignOut();
+                Debug.Log("Authentication SignOut OK.");
+            }
+            else
+            {
+                Debug.Log("No Authentication session to sign out.");
+            }
+
+            if (clearSessionOnSignOut)
+            {
+                AuthenticationService.Instance.ClearSessionToken();
+                Debug.Log("Session token cleared.");
+            }
+
+            hasLoadedScene = false;
+
+            if (!string.IsNullOrEmpty(sceneAfterSignOut))
+                SceneManager.LoadScene(sceneAfterSignOut);
+        }
         catch (RequestFailedException ex)
+        {
+            Debug.LogException(ex);
+        }
+        catch (Exception ex)
         {
             Debug.LogException(ex);
         }

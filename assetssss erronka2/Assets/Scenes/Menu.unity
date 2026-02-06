@@ -231,6 +231,18 @@ PrefabInstance:
       propertyPath: m_hasFontAssetChanged
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8320592704818196302, guid: 17765563a405c244c82dc51e1fc5f8b9, type: 3}
+      propertyPath: m_Colors.m_HighlightedColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8320592704818196302, guid: 17765563a405c244c82dc51e1fc5f8b9, type: 3}
+      propertyPath: m_Colors.m_HighlightedColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8320592704818196302, guid: 17765563a405c244c82dc51e1fc5f8b9, type: 3}
+      propertyPath: m_Colors.m_HighlightedColor.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9011040630971289217, guid: 17765563a405c244c82dc51e1fc5f8b9, type: 3}
       propertyPath: m_Name
       value: menu
