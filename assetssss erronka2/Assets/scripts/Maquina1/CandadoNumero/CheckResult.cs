@@ -8,6 +8,11 @@ public class CheckResult : MonoBehaviour
 
     void OnMouseDown()
     {
+        metodoClick();
+    }
+
+    public void metodoClick()
+    {
         if (interactionLock.tipoActual != InteractionType.None && interactionLock.tipoActual != tipo)
         {
             return;

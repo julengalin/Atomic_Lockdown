@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class AbrirCandado : MonoBehaviour
 {
@@ -8,11 +7,16 @@ public class AbrirCandado : MonoBehaviour
     [SerializeField] Camera cam;
     Vector3 posicionInicial;
     Quaternion rotacionInicial;
+    Vector3 escalaInicial;
 
-    Vector3 candadoOffset = new Vector3(1.0000f, 0.65f, 5.5f);
+    [SerializeField] Vector3 candadoOffset = new Vector3(1.0000f, 0.65f, 5.5f);
 
-    public Vector3 candadoRotCorrecta = new Vector3(0f, 0f, 90f);
+    public Vector3 candadoRotCorrecta = new Vector3(0f, 0f, 0f);
     Quaternion candadoRotOffset;
+
+    [SerializeField] Transform CandadoNumeros;
+
+    Quaternion camRotInicial;
 
     public InteractionLock interactionLock;
     public InteractionType tipo = InteractionType.CandadoNumerico;
@@ -21,10 +25,26 @@ public class AbrirCandado : MonoBehaviour
     {
         posicionInicial = gameObject.transform.position;
         rotacionInicial = gameObject.transform.rotation;
+        escalaInicial = gameObject.transform.localScale;
+
+        candadoRotOffset = Quaternion.Euler(candadoRotCorrecta);
+
+        if (CandadoNumeros == null)
+            CandadoNumeros = transform;
+    }
+
+    void Update()
+    {
+        if (!playMode) return;
 
         if (cam == null) cam = Camera.main;
-        if (cam != null)
-            candadoRotOffset = Quaternion.Inverse(cam.transform.rotation) * Quaternion.Euler(candadoRotCorrecta);
+        if (cam == null) return;
+
+        transform.position = CamOffset(cam, candadoOffset);
+
+        Vector3 dir = CandadoNumeros.position - cam.transform.position;
+        if (dir.sqrMagnitude > 0.000001f)
+            CandadoNumeros.rotation = Quaternion.LookRotation(dir, Vector3.up) * candadoRotOffset;
     }
 
     Vector3 CamOffset(Camera c, Vector3 offset)
@@ -36,6 +56,11 @@ public class AbrirCandado : MonoBehaviour
     }
 
     void OnMouseDown()
+    {
+        metodoClick();
+    }
+
+    public void metodoClick()
     {
         if (interactionLock != null)
         {
@@ -63,13 +88,24 @@ public class AbrirCandado : MonoBehaviour
 
         if (playMode)
         {
-            transform.position = CamOffset(cam, candadoOffset);
-            transform.rotation = cam.transform.rotation * candadoRotOffset;
+            transform.localScale = escalaInicial * 3f;
+
+            if (cam != null)
+            {
+                camRotInicial = cam.transform.rotation;
+
+                transform.position = CamOffset(cam, candadoOffset);
+
+                Vector3 dir = CandadoNumeros.position - cam.transform.position;
+                if (dir.sqrMagnitude > 0.000001f)
+                    CandadoNumeros.rotation = Quaternion.LookRotation(dir, Vector3.up) * candadoRotOffset;
+            }
         }
         else
         {
             transform.position = posicionInicial;
             transform.rotation = rotacionInicial;
+            transform.localScale = escalaInicial;
         }
 
         if (canvasObject == null) return;
