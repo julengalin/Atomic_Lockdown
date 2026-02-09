@@ -21,6 +21,8 @@ public class AbrirCandado : MonoBehaviour
     public InteractionLock interactionLock;
     public InteractionType tipo = InteractionType.CandadoNumerico;
 
+    public float escala = 3f;
+
     private void Start()
     {
         posicionInicial = gameObject.transform.position;
