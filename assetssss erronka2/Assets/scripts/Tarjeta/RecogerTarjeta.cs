@@ -1,5 +1,8 @@
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
+[RequireComponent(typeof(XRSimpleInteractable))]
 public class RecogerTarjeta : MonoBehaviour
 {
     [SerializeField] GestionTarjeta gestionTarjeta;
@@ -8,7 +11,21 @@ public class RecogerTarjeta : MonoBehaviour
     public InteractionLock interactionLock;
     public InteractionType tipo = InteractionType.None;
 
-    void OnMouseDown()
+    private XRSimpleInteractable interactable;
+
+    void Awake()
+    {
+        interactable = GetComponent<XRSimpleInteractable>();
+        interactable.selectEntered.AddListener(OnSelectEntered);
+    }
+
+    void OnDestroy()
+    {
+        if (interactable != null)
+            interactable.selectEntered.RemoveListener(OnSelectEntered);
+    }
+
+    private void OnSelectEntered(SelectEnterEventArgs args)
     {
         if (gestionTarjeta == null) return;
 
@@ -21,7 +38,12 @@ public class RecogerTarjeta : MonoBehaviour
                 interactionLock.Set(tipo);
         }
 
-        if (gestionTarjeta.TieneTarjeta()) return;
+        if (gestionTarjeta.TieneTarjeta())
+        {
+            if (interactionLock != null && tipo != InteractionType.None)
+                interactionLock.Limpiar();
+            return;
+        }
 
         gestionTarjeta.RecogerTarjeta();
 

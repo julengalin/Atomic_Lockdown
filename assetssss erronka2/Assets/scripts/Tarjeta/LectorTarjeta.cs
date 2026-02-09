@@ -1,5 +1,8 @@
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
+[RequireComponent(typeof(XRSimpleInteractable))]
 public class LectorTarjeta : MonoBehaviour
 {
     [SerializeField] GestionTarjeta gestionTarjeta;
@@ -16,13 +19,24 @@ public class LectorTarjeta : MonoBehaviour
 
     public bool usado = false;
 
+    private XRSimpleInteractable interactable;
+
     void Awake()
     {
         if (animator == null)
             animator = GetComponentInParent<Animator>();
+
+        interactable = GetComponent<XRSimpleInteractable>();
+        interactable.selectEntered.AddListener(OnSelectEntered);
     }
 
-    void OnMouseDown()
+    void OnDestroy()
+    {
+        if (interactable != null)
+            interactable.selectEntered.RemoveListener(OnSelectEntered);
+    }
+
+    private void OnSelectEntered(SelectEnterEventArgs args)
     {
         if (interactionLock != null)
         {
@@ -40,7 +54,6 @@ public class LectorTarjeta : MonoBehaviour
 
             if (interactionLock != null)
                 interactionLock.Limpiar();
-
             return;
         }
 
@@ -51,6 +64,9 @@ public class LectorTarjeta : MonoBehaviour
 
             gestionTarjeta.ConsumirTarjeta();
             usado = true;
+
+            // Si quieres abrir la puerta instantáneo sin anim event, descomenta:
+            // AbrirPuerta();
         }
         else
         {

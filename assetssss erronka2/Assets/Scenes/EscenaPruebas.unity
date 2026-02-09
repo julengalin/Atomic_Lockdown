@@ -3013,6 +3013,18 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1204057018}
     - target: {fileID: 2471728741653361425, guid: 27ba8c7e46d18634081594a41410df5f, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.35477
+      objectReference: {fileID: 0}
+    - target: {fileID: 2471728741653361425, guid: 27ba8c7e46d18634081594a41410df5f, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.35477
+      objectReference: {fileID: 0}
+    - target: {fileID: 2471728741653361425, guid: 27ba8c7e46d18634081594a41410df5f, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.35477
+      objectReference: {fileID: 0}
+    - target: {fileID: 2471728741653361425, guid: 27ba8c7e46d18634081594a41410df5f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -3068,6 +3080,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Escaner
       objectReference: {fileID: 0}
+    - target: {fileID: 6682889902330390115, guid: 27ba8c7e46d18634081594a41410df5f, type: 3}
+      propertyPath: m_InteractionManager
+      value: 
+      objectReference: {fileID: 951076004}
+    - target: {fileID: 9031078684549826539, guid: 27ba8c7e46d18634081594a41410df5f, type: 3}
+      propertyPath: m_InteractionManager
+      value: 
+      objectReference: {fileID: 951076004}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3152,6 +3172,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1827086655049750066, guid: 8d95617e065e20548be2bf35e49335fc, type: 3}
+      propertyPath: disparosPorColor
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2706242325651225943, guid: 8d95617e065e20548be2bf35e49335fc, type: 3}
       propertyPath: interactionLock
       value: 
@@ -3160,6 +3184,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemigo
       objectReference: {fileID: 0}
+    - target: {fileID: 4575515178407164927, guid: 8d95617e065e20548be2bf35e49335fc, type: 3}
+      propertyPath: m_InteractionManager
+      value: 
+      objectReference: {fileID: 951076004}
     - target: {fileID: 6028111632363824478, guid: 8d95617e065e20548be2bf35e49335fc, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.1
