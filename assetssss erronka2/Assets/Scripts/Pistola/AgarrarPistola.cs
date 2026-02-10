@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+using Unity.Netcode;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
@@ -8,11 +10,11 @@ public class AgarrarPistola : MonoBehaviour
     [Header("XR")]
     [SerializeField] private XRGrabInteractable grab;
 
-    [Header("Interactores que agarran la pistola")]
+    [Header("Interactores (solo para saber qué mano oculta el visual)")]
     public XRBaseInteractor leftInteractor;
     public XRBaseInteractor rightInteractor;
 
-    [Header("SOLO el modelo visual del mando")]
+    [Header("SOLO el modelo visual del mando (solo local)")]
     public GameObject leftControllerVisual;
     public GameObject rightControllerVisual;
 
@@ -20,15 +22,24 @@ public class AgarrarPistola : MonoBehaviour
     public bool lockInHand = true;
 
     private enum Side { None, Left, Right }
-    private Side currentSide = Side.None;
-
-    // 👇 Mano “dueña” (la primera que la agarró)
-    private IXRSelectInteractor ownerInteractor = null;
     private Side ownerSide = Side.None;
+
+    private IXRSelectInteractor localHeldInteractor = null;
+
+    private PistolaNetwork net;
+    private NetworkObject netObj;
+
+    private Coroutine pendingRegrab;
+    private float lastOwnershipRequestTime;
 
     void Awake()
     {
         if (!grab) grab = GetComponent<XRGrabInteractable>();
+        net = GetComponent<PistolaNetwork>();
+        netObj = GetComponent<NetworkObject>();
+
+        // Pedimos ownership lo antes posible (hover)
+        grab.hoverEntered.AddListener(OnHoverEntered);
 
         grab.selectEntered.AddListener(OnGrab);
         grab.selectExited.AddListener(OnRelease);
@@ -36,57 +47,99 @@ public class AgarrarPistola : MonoBehaviour
 
     void OnDestroy()
     {
+        if (!grab) return;
+        grab.hoverEntered.RemoveListener(OnHoverEntered);
         grab.selectEntered.RemoveListener(OnGrab);
         grab.selectExited.RemoveListener(OnRelease);
     }
 
+    void OnHoverEntered(HoverEnterEventArgs args)
+    {
+        if (net == null || netObj == null) return;
+
+        // Anti-spam
+        if (Time.time - lastOwnershipRequestTime < 0.25f) return;
+        lastOwnershipRequestTime = Time.time;
+
+        // Si ya soy owner, no hace falta
+        if (netObj.IsOwner) return;
+
+        // ✅ CUALQUIERA que haga hover en SU cliente pedirá ownership
+        net.RequestGrab();
+    }
+
     void OnGrab(SelectEnterEventArgs args)
     {
-        // Si todavía no hay dueño, el primero que la coge se queda como dueño
-        if (ownerInteractor == null)
+        if (net == null || netObj == null) return;
+
+        // Si aún no soy owner cuando se intenta agarrar, suelto y reintento cuando llegue el ownership
+        if (!netObj.IsOwner)
         {
-            ownerInteractor = args.interactorObject;
+            // Asegura ownership
+            net.RequestGrab();
 
-            if (args.interactorObject == leftInteractor) ownerSide = Side.Left;
-            else if (args.interactorObject == rightInteractor) ownerSide = Side.Right;
-            else ownerSide = Side.None;
+            if (grab.interactionManager != null)
+                grab.interactionManager.SelectExit(args.interactorObject, grab);
 
-            currentSide = ownerSide;
-
-            // Oculta SOLO el mando del dueño
-            if (ownerSide == Side.Left && leftControllerVisual) leftControllerVisual.SetActive(false);
-            if (ownerSide == Side.Right && rightControllerVisual) rightControllerVisual.SetActive(false);
-
+            if (pendingRegrab != null) StopCoroutine(pendingRegrab);
+            pendingRegrab = StartCoroutine(WaitOwnershipAndRegrab(args.interactorObject));
             return;
         }
 
-        // Si alguien que NO es el dueño intenta agarrarla -> no permitimos cambio de mano
-        if (args.interactorObject != ownerInteractor && grab.interactionManager != null)
+        // Ya soy owner: guardamos el interactor para lock local
+        if (localHeldInteractor == null)
+            localHeldInteractor = args.interactorObject;
+
+        // Detectar mano (solo para ocultar visual local)
+        var xrInteractor = args.interactorObject as XRBaseInteractor;
+        if (xrInteractor != null && xrInteractor == leftInteractor) ownerSide = Side.Left;
+        else if (xrInteractor != null && xrInteractor == rightInteractor) ownerSide = Side.Right;
+        else ownerSide = Side.None;
+
+        // Ocultar mando SOLO en este cliente
+        if (ownerSide == Side.Left && leftControllerVisual) leftControllerVisual.SetActive(false);
+        if (ownerSide == Side.Right && rightControllerVisual) rightControllerVisual.SetActive(false);
+    }
+
+    IEnumerator WaitOwnershipAndRegrab(IXRSelectInteractor interactor)
+    {
+        float timeout = 2f;
+        while (timeout > 0f && netObj != null && !netObj.IsOwner)
         {
-            // Soltamos al "ladrón" y volvemos a agarrar con el dueño
-            grab.interactionManager.SelectExit(args.interactorObject, grab);
-            grab.interactionManager.SelectEnter(ownerInteractor, grab);
+            timeout -= Time.deltaTime;
+            yield return null;
         }
+
+        if (netObj == null || !netObj.IsOwner) yield break;
+        if (grab == null || grab.interactionManager == null) yield break;
+
+        grab.interactionManager.SelectEnter(interactor, grab);
     }
 
     void OnRelease(SelectExitEventArgs args)
     {
-        if (lockInHand && grab.interactionManager != null && ownerInteractor != null)
+        // Lock local (no suelta)
+        if (lockInHand && grab.interactionManager != null && localHeldInteractor != null)
         {
-            // Fuerza que la pistola NO se suelte nunca (siempre vuelve al dueño)
-            grab.interactionManager.SelectEnter(ownerInteractor, grab);
+            grab.interactionManager.SelectEnter(localHeldInteractor, grab);
             return;
         }
 
-        // Solo si permites soltar (lockInHand = false)
-        if (ownerSide == Side.Left && leftControllerVisual)
-            leftControllerVisual.SetActive(true);
+        // Si permites soltar:
+        if (!lockInHand && net != null)
+            net.RequestRelease();
 
-        if (ownerSide == Side.Right && rightControllerVisual)
-            rightControllerVisual.SetActive(true);
+        // Mostrar mando local
+        if (ownerSide == Side.Left && leftControllerVisual) leftControllerVisual.SetActive(true);
+        if (ownerSide == Side.Right && rightControllerVisual) rightControllerVisual.SetActive(true);
 
-        ownerInteractor = null;
+        localHeldInteractor = null;
         ownerSide = Side.None;
-        currentSide = Side.None;
+
+        if (pendingRegrab != null)
+        {
+            StopCoroutine(pendingRegrab);
+            pendingRegrab = null;
+        }
     }
 }

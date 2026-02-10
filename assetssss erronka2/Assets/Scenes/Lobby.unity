@@ -3161,7 +3161,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.556
+      value: 1.21
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalPosition.z
@@ -3712,7 +3712,7 @@ MonoBehaviour:
   createButton: {fileID: 1377671802}
   joinButton: {fileID: 600169909}
   startGameButton: {fileID: 851558392}
-  nextSceneName: SampleScene
+  nextSceneName: EscenaPruebas
   joinCodeInput: {fileID: 1270893096}
   joinCodeText: {fileID: 1031948159}
   playersCountText: {fileID: 1379949864}
