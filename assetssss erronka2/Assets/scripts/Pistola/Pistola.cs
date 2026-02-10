@@ -1,8 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
+using Unity.Netcode;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-public class Pistola : MonoBehaviour
+public class Pistola : NetworkBehaviour
 {
     [Header("Disparo")]
     public LineRenderer linePrefab;
@@ -15,67 +16,83 @@ public class Pistola : MonoBehaviour
     [SerializeField] private XRGrabInteractable grab;
     [SerializeField] private float fireCooldown = 0.15f;
 
-    private float lastFireTime;
+    private float lastFireTimeLocal;
     private bool triggerHeld;
 
     void Awake()
     {
         if (!grab) grab = GetComponent<XRGrabInteractable>();
+    }
 
-        // Detecta cuando se pulsa el "Activate" del interactable (por defecto: trigger)
+    void OnEnable()
+    {
+        if (!grab) return;
         grab.activated.AddListener(OnActivated);
         grab.deactivated.AddListener(OnDeactivated);
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
+        if (!grab) return;
         grab.activated.RemoveListener(OnActivated);
         grab.deactivated.RemoveListener(OnDeactivated);
     }
 
     private void OnActivated(ActivateEventArgs args)
     {
+        if (!IsOwner) return;
         triggerHeld = true;
-        TryFire();
+        TryFireLocal();
     }
 
     private void OnDeactivated(DeactivateEventArgs args)
     {
+        if (!IsOwner) return;
         triggerHeld = false;
     }
 
     void Update()
     {
-        // si quieres disparo autom�tico manteniendo trigger:
-        if (triggerHeld) TryFire();
+        if (!IsOwner) return;
+        if (triggerHeld) TryFireLocal();
     }
 
-    private void TryFire()
+    private void TryFireLocal()
     {
-        if (Time.time - lastFireTime < fireCooldown) return;
-        lastFireTime = Time.time;
-        Disparar();
+        if (Time.time - lastFireTimeLocal < fireCooldown) return;
+        lastFireTimeLocal = Time.time;
+
+        if (!shootingPoint) return;
+
+        FireRpc(shootingPoint.position, shootingPoint.forward, tipoDisparo);
     }
 
-    void Disparar()
+    // ✅ NUEVO atributo en lugar de [ServerRpc]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
+    private void FireRpc(Vector3 origin, Vector3 direction, DisparoTipo tipo)
     {
-        if (!linePrefab || !shootingPoint) return;
+        Vector3 endPoint = origin + direction * maxLineDistance;
 
-        LineRenderer line = Instantiate(linePrefab);
-        line.positionCount = 2;
-        line.SetPosition(0, shootingPoint.position);
-
-        Vector3 endPoint = shootingPoint.position + shootingPoint.forward * maxLineDistance;
-
-        if (Physics.Raycast(shootingPoint.position, shootingPoint.forward, out RaycastHit hit, maxLineDistance))
+        if (Physics.Raycast(origin, direction, out RaycastHit hit, maxLineDistance))
         {
-            IRecibeDisparo r = hit.collider.GetComponentInParent<IRecibeDisparo>();
-            if (r != null) r.RecibirDisparo(tipoDisparo);
-
             endPoint = hit.point;
+
+            var r = hit.collider.GetComponentInParent<IRecibeDisparo>();
+            if (r != null) r.RecibirDisparo(tipo);
         }
 
-        line.SetPosition(1, endPoint);
+        FireFxRpc(origin, endPoint);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void FireFxRpc(Vector3 start, Vector3 end)
+    {
+        if (!linePrefab) return;
+
+        var line = Instantiate(linePrefab);
+        line.positionCount = 2;
+        line.SetPosition(0, start);
+        line.SetPosition(1, end);
         Destroy(line.gameObject, lineShowTimer);
     }
 }
