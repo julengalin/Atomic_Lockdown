@@ -27,25 +27,42 @@ public class Enemy_NoNavMesh : MonoBehaviour
 
     [Header("Animación")]
     public string isWalkingBool = "IsWalking";
+    public string muertoBool = "muerto";
 
     [Header("Audio - DOS AudioSource")]
-    public AudioSource walkSource;       // SOLO pasos
+    public AudioSource walkSource;
     public AudioClip footstepsClip;
     [Range(0f, 1f)] public float footstepsVolume = 0.8f;
 
-    public AudioSource scareSource;      // SOLO susto
+    public AudioSource scareSource;
     public AudioClip scareClip;
     [Range(0f, 1f)] public float scareVolume = 1f;
 
     [Header("Touch settings")]
     public float touchCooldown = 1f;
 
+    [Header("Muerte")]
+    public bool dieOnTouchPlayer = false;
+    public bool freezeCompletelyOnDeath = true;
+    public bool disableControllerOnDeath = true;
+
+    [Header("Desaparecer al morir")]
+    public bool hideAfterDeath = true;
+    public float hideDelay = 2.0f;
+
     int wpIndex = 0;
     bool chasing = false;
     bool waiting = false;
     bool touchLocked = false;
+    bool dead = false;
 
     int walkHash;
+    int deadHash;
+
+    Coroutine waitRoutine;
+
+    Vector3 deadPos;
+    Quaternion deadRot;
 
     void Start()
     {
@@ -59,29 +76,36 @@ public class Enemy_NoNavMesh : MonoBehaviour
         }
 
         walkHash = Animator.StringToHash(isWalkingBool);
+        deadHash = Animator.StringToHash(muertoBool);
 
-        // Config pasos
+        if (animator)
+        {
+            animator.SetBool(deadHash, false);
+            animator.SetBool(walkHash, false);
+            animator.applyRootMotion = false; // evita empujes raros
+        }
+
         if (walkSource)
         {
             walkSource.playOnAwake = false;
             walkSource.loop = true;
-            walkSource.spatialBlend = 1f; // 3D
+            walkSource.spatialBlend = 1f;
             walkSource.clip = footstepsClip;
             walkSource.volume = footstepsVolume;
         }
 
-        // Config susto
         if (scareSource)
         {
             scareSource.playOnAwake = false;
             scareSource.loop = false;
-            scareSource.spatialBlend = 1f; // 3D
+            scareSource.spatialBlend = 1f;
             scareSource.volume = scareVolume;
         }
     }
 
     void Update()
     {
+        if (dead) return;
         if (!player || !controller) return;
 
         float dist = Vector3.Distance(transform.position, player.position);
@@ -89,10 +113,20 @@ public class Enemy_NoNavMesh : MonoBehaviour
         if (!chasing && dist <= chaseDistance) chasing = true;
         else if (chasing && dist >= loseDistance) chasing = false;
 
-        if (chasing)
-            MoveTowards(player.position, chaseSpeed);
-        else
-            Patrol();
+        if (chasing) MoveTowards(player.position, chaseSpeed);
+        else Patrol();
+    }
+
+    void LateUpdate()
+    {
+        if (!dead) return;
+        if (!freezeCompletelyOnDeath) return;
+
+        transform.position = deadPos;
+        transform.rotation = deadRot;
+
+        // EXTRA: por si el Animator intenta colarte IsWalking en true por algún motivo
+        if (animator) animator.SetBool(walkHash, false);
     }
 
     void Patrol()
@@ -108,7 +142,8 @@ public class Enemy_NoNavMesh : MonoBehaviour
 
         if (dist <= reachDistance && !waiting)
         {
-            StartCoroutine(WaitAndNext());
+            if (waitRoutine != null) StopCoroutine(waitRoutine);
+            waitRoutine = StartCoroutine(WaitAndNext());
             return;
         }
 
@@ -130,35 +165,30 @@ public class Enemy_NoNavMesh : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, rot, rotateSpeed * Time.deltaTime);
 
         Vector3 move = dir.normalized * speed * Time.deltaTime;
-
-        // “pegar al suelo” con CharacterController
         move.y = -2f * Time.deltaTime;
 
         controller.Move(move);
-
         StartWalking();
     }
 
     void StartWalking()
     {
+        if (dead) return;
+
         if (animator) animator.SetBool(walkHash, true);
 
-        if (walkSource && footstepsClip)
+        if (walkSource && footstepsClip && !walkSource.isPlaying)
         {
-            if (walkSource.clip != footstepsClip) walkSource.clip = footstepsClip;
+            walkSource.clip = footstepsClip;
             walkSource.volume = footstepsVolume;
-
-            if (!walkSource.isPlaying)
-                walkSource.Play();
+            walkSource.Play();
         }
     }
 
     void StopWalking()
     {
         if (animator) animator.SetBool(walkHash, false);
-
-        if (walkSource && walkSource.isPlaying)
-            walkSource.Stop();
+        if (walkSource && walkSource.isPlaying) walkSource.Stop();
     }
 
     IEnumerator WaitAndNext()
@@ -168,27 +198,29 @@ public class Enemy_NoNavMesh : MonoBehaviour
 
         yield return new WaitForSeconds(waitAtWaypoint);
 
+        if (dead) yield break;
+
         wpIndex = (wpIndex + 1) % waypoints.Length;
         waiting = false;
     }
 
     void OnTriggerEnter(Collider other)
     {
+        if (dead) return;
         if (touchLocked) return;
-
         if (!other.CompareTag("Player")) return;
 
         StartCoroutine(TouchCooldownRoutine());
 
-        // Susto AL TOCAR
+        if (dieOnTouchPlayer)
+        {
+            Die();
+            return;
+        }
+
         PlayScareSound();
-
-        // Respawn del player
         RespawnThePlayer();
-
-        // Reset enemigo a WP1 (enemyResetPoint)
         ResetEnemy();
-
         chasing = false;
     }
 
@@ -202,9 +234,6 @@ public class Enemy_NoNavMesh : MonoBehaviour
     void PlayScareSound()
     {
         if (!scareSource || !scareClip) return;
-
-        // reproduce susto sin cortar pasos (son dos AudioSource distintos)
-        scareSource.volume = scareVolume;
         scareSource.PlayOneShot(scareClip, scareVolume);
     }
 
@@ -225,7 +254,15 @@ public class Enemy_NoNavMesh : MonoBehaviour
     {
         StopWalking();
 
+        if (waitRoutine != null)
+        {
+            StopCoroutine(waitRoutine);
+            waitRoutine = null;
+        }
+
         if (!enemyResetPoint) return;
+
+        if (controller && !controller.enabled) controller.enabled = true;
 
         controller.enabled = false;
         transform.position = enemyResetPoint.position;
@@ -235,5 +272,53 @@ public class Enemy_NoNavMesh : MonoBehaviour
         wpIndex = 0;
         waiting = false;
         chasing = false;
+
+        if (animator)
+        {
+            animator.SetBool(deadHash, false);
+            animator.SetBool(walkHash, false);
+            animator.applyRootMotion = false;
+        }
+
+        dead = false;
+    }
+
+    public void Die()
+    {
+        if (dead) return;
+        dead = true;
+
+        deadPos = transform.position;
+        deadRot = transform.rotation;
+
+        chasing = false;
+        waiting = false;
+
+        if (waitRoutine != null)
+        {
+            StopCoroutine(waitRoutine);
+            waitRoutine = null;
+        }
+
+        StopWalking();
+
+        if (animator)
+        {
+            animator.applyRootMotion = false;
+            animator.SetBool(walkHash, false);  // <- CLAVE
+            animator.SetBool(deadHash, true);   // <- dispara mori
+        }
+
+        if (disableControllerOnDeath && controller)
+            controller.enabled = false;
+
+        if (hideAfterDeath)
+            StartCoroutine(HideAfterSeconds());
+    }
+
+    IEnumerator HideAfterSeconds()
+    {
+        yield return new WaitForSeconds(hideDelay);
+        gameObject.SetActive(false);
     }
 }
