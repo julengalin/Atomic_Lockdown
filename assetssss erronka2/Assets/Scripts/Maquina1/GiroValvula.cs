@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 public class GiroValvulaVisual : MonoBehaviour
 {
     public GestionValvula gestionValvula;
@@ -16,20 +16,27 @@ public class GiroValvulaVisual : MonoBehaviour
 
     float anguloActual = 0f;
 
-    float anguloBase;
+    float stepAcc = 0f;
 
-    float screenWidth;
-    Vector3 pressPoint;
-    Quaternion startRotation;
+    Quaternion baseLocalRotation;
 
-    float velocidadGiro = 0.35f;
+    [SerializeField] float deadzone = 0.15f;
+
+    private XRGrabInteractable grabInteractable;
 
     private void Start()
     {
-        screenWidth = Screen.width;
+        baseLocalRotation = transform.localRotation;
+        grabInteractable = GetComponent<XRGrabInteractable>();
+
+        if (gestionValvula != null)
+        {
+            anguloActual = ValorAAngulo(gestionValvula.valorActual);
+            AplicarRotacion();
+        }
     }
 
-    private void OnMouseDown()
+    public void metodoSelect()
     {
         if (interactionLock != null)
         {
@@ -43,45 +50,118 @@ public class GiroValvulaVisual : MonoBehaviour
             }
         }
 
+        Debug.Log("Vuelve a pasar interacciones");
+
         if (gestionValvula == null) return;
         if (!gestionValvula.playMode) return;
 
-        pressPoint = Input.mousePosition;
-        anguloBase = anguloActual;
-
         arrastrando = true;
+        Debug.Log("Arrastrando = " + arrastrando.ToString());
+    }
+
+    public void metodoUnselect()
+    {
+        if (arrastrando && gestionValvula != null)
+            gestionValvula.JugadorHaSalido();
+
+        arrastrando = false;
+    }
+
+    private void OnMouseDown()
+    {
+        metodoSelect();
     }
 
     private void OnMouseUp()
     {
-        arrastrando = false;
+        metodoUnselect();
     }
 
     private void Update()
     {
         if (!arrastrando) return;
+        Debug.Log("Está arrastrando");
+
         if (gestionValvula.EstaBloqueada()) return;
+        Debug.Log("No esta bloqueada");
 
         if (interactionLock != null && interactionLock.tipoActual != tipo) return;
+        Debug.Log("Interaction bien");
 
-        if (Input.GetMouseButtonDown(0))
+        float inputDirection = 0f;
+        OVRInput.Controller controllerToCheck = OVRInput.Controller.Active;
+
+        if (grabInteractable != null && grabInteractable.isSelected && grabInteractable.interactorsSelecting.Count > 0)
         {
-            pressPoint = Input.mousePosition;
-            startRotation = transform.rotation;
+            var interactor = grabInteractable.interactorsSelecting[0];
+
+            string n = interactor.transform.name.ToLower();
+
+            if (n.Contains("left") || n.Contains("izq"))
+                controllerToCheck = OVRInput.Controller.LTouch;
+            else if (n.Contains("right") || n.Contains("der"))
+                controllerToCheck = OVRInput.Controller.RTouch;
+            else
+            {
+                if (interactor.transform.root.name.ToLower().Contains("left") || interactor.transform.root.name.ToLower().Contains("izq"))
+                    controllerToCheck = OVRInput.Controller.LTouch;
+                else if (interactor.transform.root.name.ToLower().Contains("right") || interactor.transform.root.name.ToLower().Contains("der"))
+                    controllerToCheck = OVRInput.Controller.RTouch;
+            }
+
         }
-        else if (Input.GetMouseButton(0))
+
+        if (OVRInput.GetDown(OVRInput.Button.One, controllerToCheck))
         {
-            float deltaX = (Input.mousePosition - pressPoint).x;
-
-            float deltaAngulo = (deltaX / screenWidth) * 360f * velocidadGiro;
-            float anguloDeseado = anguloBase + deltaAngulo;
-            anguloActual = Mathf.Clamp(anguloDeseado, minAngulo, maxAngulo);
-
-            transform.rotation = startRotation * Quaternion.Euler(0f, anguloActual, 0f);
-
-            if (gestionValvula != null)
-                gestionValvula.SetValorActual(AnguloAValor(anguloActual));
+            inputDirection = 1f;
         }
+        else if (OVRInput.GetDown(OVRInput.Button.Two, controllerToCheck))
+        {
+            inputDirection = -1f;
+        }
+
+        if (inputDirection == 0f)
+        {
+            if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D)) inputDirection = 1f;
+            else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A)) inputDirection = -1f;
+        }
+
+        Debug.Log("Direccion Input: " + inputDirection.ToString());
+
+        if (inputDirection == 0f) return;
+
+        if (pasos <= 1) return;
+
+        float anguloPorPaso = (maxAngulo - minAngulo) / (pasos - 1);
+
+        stepAcc += 1f;
+
+        if (stepAcc < 1f) return;
+
+        int pasosAAvanzar = Mathf.FloorToInt(stepAcc);
+        stepAcc -= pasosAAvanzar;
+
+        float nuevoAngulo = anguloActual + inputDirection * anguloPorPaso * pasosAAvanzar;
+
+        anguloActual = Mathf.Clamp(nuevoAngulo, minAngulo, maxAngulo);
+
+        Debug.Log("anguloActual" + anguloActual.ToString());
+
+        AplicarRotacion();
+
+        if (gestionValvula != null)
+            Debug.Log("Gestion valvula no es nulo");
+
+        gestionValvula.SetValorActual(AnguloAValor(anguloActual));
+    }
+
+    void AplicarRotacion()
+    {
+        Debug.Log("Entra en aplicar rotación");
+        Debug.Log(" baseLocalRotation * Quaternion.Euler(0f, anguloActual, 0f) = " + (baseLocalRotation * Quaternion.Euler(0f, anguloActual, 0f)).ToString());
+
+        transform.localRotation = baseLocalRotation * Quaternion.Euler(0f, anguloActual, 0f);
+        Debug.Log("local rotation = " + transform.localRotation.ToString());
     }
 
     int AnguloAValor(float angulo)
@@ -93,9 +173,18 @@ public class GiroValvulaVisual : MonoBehaviour
         return Mathf.Clamp(v, 0, pasos - 1);
     }
 
+    float ValorAAngulo(int valor)
+    {
+        if (pasos <= 1) return minAngulo;
+
+        int v = Mathf.Clamp(valor, 0, pasos - 1);
+        float t = v / (float)(pasos - 1);
+        return Mathf.Lerp(minAngulo, maxAngulo, t);
+    }
+
     public void ReiniciarVisual(float anguloInicial)
     {
         anguloActual = Mathf.Clamp(anguloInicial, minAngulo, maxAngulo);
-        transform.localRotation = Quaternion.Euler(0f, anguloActual, 0f);
+        AplicarRotacion();
     }
 }
