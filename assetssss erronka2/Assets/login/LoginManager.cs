@@ -4,19 +4,14 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-// UGS Core + Authentication
 using Unity.Services.Core;
-using Unity.Services.Core.Environments;
 using Unity.Services.Authentication;
-
-// Unity Player Accounts (Login con Unity)
 using Unity.Services.Authentication.PlayerAccounts;
 
 public class LoginManager : MonoBehaviour
 {
     [Header("UI")]
     public TMP_Text sessionStatusText;
-
     public Button anonimoButton;
     public Button unityButton;
     public Button signOutButton;
@@ -28,14 +23,13 @@ public class LoginManager : MonoBehaviour
     public Button anonCancelButton;
 
     [Header("Scene")]
-    [Tooltip("Nombre EXACTO de la escena a cargar al iniciar sesión (debe estar en Build Settings).")]
     public string lobbySceneName = "Lobby";
 
     private bool servicesReady = false;
+    private bool unityLoginInProgress = false;
 
     private async void Awake()
     {
-        // Hook de botones
         if (anonOkButton) anonOkButton.onClick.AddListener(OnAnonOk);
         if (anonCancelButton) anonCancelButton.onClick.AddListener(HideAnonPanel);
 
@@ -45,30 +39,35 @@ public class LoginManager : MonoBehaviour
 
         if (anonPanel) anonPanel.SetActive(false);
 
-        // Inicializa Unity Services (UGS)
         try
         {
-            // (Opcional) Environment; si no lo usas, puedes borrar esta línea.
-            var options = new InitializationOptions().SetEnvironmentName("production");
-
-            await UnityServices.InitializeAsync(options);
-
+            await UnityServices.InitializeAsync();
             servicesReady = true;
 
-            // Eventos de Authentication
             AuthenticationService.Instance.SignedIn += RefreshUI;
             AuthenticationService.Instance.SignedOut += RefreshUI;
             AuthenticationService.Instance.Expired += RefreshUI;
+
+            PlayerAccountService.Instance.SignedIn += OnPlayerAccountsSignedIn;
         }
         catch (Exception e)
         {
-            Debug.LogWarning("No se pudieron inicializar Unity Services: " + e.Message);
+            Debug.LogError("Unity zerbitzuak ezin izan dira hasieratu:\n" + e);
             servicesReady = false;
         }
 
         RefreshUI();
     }
 
+    private void OnDestroy()
+    {
+        if (servicesReady)
+        {
+            PlayerAccountService.Instance.SignedIn -= OnPlayerAccountsSignedIn;
+        }
+    }
+
+    // ---------------- UI STATE ----------------
     private void RefreshUI()
     {
         var type = SessionData.GetSessionType();
@@ -79,25 +78,22 @@ public class LoginManager : MonoBehaviour
         if (sessionStatusText)
         {
             if (!hasSession)
-            {
-                sessionStatusText.text = "Sesión no iniciada";
-            }
+                sessionStatusText.text = "Saioa hasi gabe";
             else
             {
-                string who = type == SessionType.Anonymous ? "ANÓNIMO" : "UNITY";
+                string who = type == SessionType.Anonymous ? "ANONIMOA" : "UNITY";
                 string namePart = string.IsNullOrWhiteSpace(name) ? "" : $" ({name})";
-                sessionStatusText.text = $"Sesión iniciada con {who}{namePart}";
+                sessionStatusText.text = $"Saioa hasita: {who}{namePart}";
             }
         }
 
         if (signOutButton) signOutButton.interactable = hasSession;
 
-        // Opcional: bloquear login si ya hay sesión
         if (anonimoButton) anonimoButton.interactable = !hasSession;
-        if (unityButton) unityButton.interactable = !hasSession;
+        if (unityButton) unityButton.interactable = !hasSession && !unityLoginInProgress;
     }
 
-    // ---------- ANÓNIMO ----------
+    // ---------------- ANÓNIMO ----------------
     private void OnClickAnonimo()
     {
         if (SessionData.GetSessionType() != SessionType.None) return;
@@ -128,66 +124,78 @@ public class LoginManager : MonoBehaviour
         chosen = (chosen ?? "").Trim();
 
         if (string.IsNullOrWhiteSpace(chosen))
-            chosen = "Player";
+            chosen = "Jokalaria";
 
-        // Guardamos sesión local
         SessionData.SetSession(SessionType.Anonymous, chosen);
 
         HideAnonPanel();
         RefreshUI();
-
         LoadLobby();
     }
 
-    // ---------- UNITY ----------
+    // ---------------- UNITY PLAYER ACCOUNTS ----------------
     private async void OnClickUnity()
     {
         if (SessionData.GetSessionType() != SessionType.None) return;
 
         if (!servicesReady)
         {
-            Debug.LogWarning("Unity Services no está listo. No se puede hacer login con Unity.");
+            Debug.LogWarning("Unity zerbitzuak ez daude prest. Ezin da saioa hasi.");
             return;
         }
 
         try
         {
-            // 1) Inicia flujo Unity Player Accounts (abre login)
-            await PlayerAccountService.Instance.StartSignInAsync();
+            unityLoginInProgress = true;
+            RefreshUI();
 
-            // 2) Token -> UGS Authentication
-            var accessToken = PlayerAccountService.Instance.AccessToken;
+            await PlayerAccountService.Instance.StartSignInAsync();
+        }
+        catch (Exception e)
+        {
+            unityLoginInProgress = false;
+            RefreshUI();
+            Debug.LogError("Saioa hastean errorea:\n" + e);
+        }
+    }
+
+    private async void OnPlayerAccountsSignedIn()
+    {
+        try
+        {
+            string accessToken = PlayerAccountService.Instance.AccessToken;
 
             if (string.IsNullOrWhiteSpace(accessToken))
             {
-                Debug.LogWarning("AccessToken vacío. Revisa Client ID / Player Accounts / Dashboard.");
+                unityLoginInProgress = false;
+                RefreshUI();
+                Debug.LogError("AccessToken hutsik dago. Egiaztatu konfigurazioa.");
                 return;
             }
 
             await AuthenticationService.Instance.SignInWithUnityAsync(accessToken);
 
-            // 3) Guardar sesión local (puedes mejorar el nombre más adelante)
-            string unityName = "UnityUser";
-            SessionData.SetSession(SessionType.Unity, unityName);
+            SessionData.SetSession(SessionType.Unity, "Unity erabiltzailea");
 
+            unityLoginInProgress = false;
             RefreshUI();
             LoadLobby();
         }
         catch (Exception e)
         {
-            Debug.LogWarning("Login Unity falló: " + e.Message);
+            unityLoginInProgress = false;
+            RefreshUI();
+            Debug.LogError("Unity saioa hastean errorea:\n" + e);
         }
     }
 
-    // ---------- SIGN OUT ----------
+    // ---------------- SIGN OUT ----------------
     private void OnClickSignOut()
     {
         if (SessionData.GetSessionType() == SessionType.None) return;
 
-        // Limpia tu sesión local
         SessionData.ClearSession();
 
-        // Cierra sesión en UGS si aplica
         if (servicesReady)
         {
             try
@@ -195,24 +203,24 @@ public class LoginManager : MonoBehaviour
                 if (AuthenticationService.Instance.IsSignedIn)
                     AuthenticationService.Instance.SignOut();
 
-                // Limpia token guardado (evita que se restaure sola)
                 AuthenticationService.Instance.ClearSessionToken();
             }
             catch (Exception e)
             {
-                Debug.LogWarning("SignOut UGS falló: " + e.Message);
+                Debug.LogError("Saioa ixtean errorea:\n" + e);
             }
         }
 
+        unityLoginInProgress = false;
         RefreshUI();
     }
 
-    // ---------- HELPERS ----------
+    // ---------------- HELPERS ----------------
     private void LoadLobby()
     {
         if (string.IsNullOrWhiteSpace(lobbySceneName))
         {
-            Debug.LogWarning("lobbySceneName está vacío. No puedo cargar la escena.");
+            Debug.LogWarning("lobbySceneName hutsik dago.");
             return;
         }
 
