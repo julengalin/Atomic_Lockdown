@@ -82,7 +82,7 @@ public class Enemy_NoNavMesh : MonoBehaviour
         {
             animator.SetBool(deadHash, false);
             animator.SetBool(walkHash, false);
-            animator.applyRootMotion = false; // evita empujes raros
+            animator.applyRootMotion = false;
         }
 
         if (walkSource)
@@ -125,7 +125,6 @@ public class Enemy_NoNavMesh : MonoBehaviour
         transform.position = deadPos;
         transform.rotation = deadRot;
 
-        // EXTRA: por si el Animator intenta colarte IsWalking en true por algún motivo
         if (animator) animator.SetBool(walkHash, false);
     }
 
@@ -204,11 +203,26 @@ public class Enemy_NoNavMesh : MonoBehaviour
         waiting = false;
     }
 
+    // ✅ ENTRA
     void OnTriggerEnter(Collider other)
+    {
+        TryTouchPlayer(other);
+    }
+
+    // ✅ SE QUEDA DENTRO (esto arregla que la 2ª vez no funcione)
+    void OnTriggerStay(Collider other)
+    {
+        TryTouchPlayer(other);
+    }
+
+    void TryTouchPlayer(Collider other)
     {
         if (dead) return;
         if (touchLocked) return;
-        if (!other.CompareTag("Player")) return;
+
+        // ✅ detecta al player aunque el collider sea de un hijo
+        if (!player) return;
+        if (other.transform != player && other.transform.root != player.root) return;
 
         StartCoroutine(TouchCooldownRoutine());
 
@@ -223,6 +237,7 @@ public class Enemy_NoNavMesh : MonoBehaviour
         ResetEnemy();
         chasing = false;
     }
+
 
     IEnumerator TouchCooldownRoutine()
     {
@@ -305,8 +320,8 @@ public class Enemy_NoNavMesh : MonoBehaviour
         if (animator)
         {
             animator.applyRootMotion = false;
-            animator.SetBool(walkHash, false);  // <- CLAVE
-            animator.SetBool(deadHash, true);   // <- dispara mori
+            animator.SetBool(walkHash, false);
+            animator.SetBool(deadHash, true);
         }
 
         if (disableControllerOnDeath && controller)
