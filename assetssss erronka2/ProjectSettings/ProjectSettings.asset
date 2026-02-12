@@ -939,11 +939,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: 08a7e4a9-7c2d-4784-89e3-9d9de854fef6
+  cloudProjectId: d4663b4b-1fb3-4500-8c65-06405e4ea84c
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: assetssss erronka2 (1)
-  organizationId: erikmontero
+  projectName: assetssss erronka2
+  organizationId: alberdijon
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
