@@ -1,37 +1,40 @@
 ﻿using UnityEngine;
 using Unity.Netcode;
+using System.Collections;
 
 public class EnemigoHit : NetworkBehaviour, IRecibeDisparo
 {
     [Header("Requisitos")]
-    [SerializeField] private int disparosPorColor = 0;
+    [SerializeField] private int disparosPorColor = 2;
+
+    [Header("Animación")]
+    public Enemy_NoNavMesh enemyAI;
+    public float deathDelay = 2.0f; // duración animación
 
     [Header("UI/Drop")]
     public GameObject card;
 
-    // Contadores sincronizados
     private NetworkVariable<int> disparosRojos = new(
         0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     private NetworkVariable<int> disparosAzules = new(
         0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-    // Estado de muerto para no repetir lógica
     private NetworkVariable<bool> muerto = new(
         false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     void Awake()
     {
+        if (!enemyAI) enemyAI = GetComponent<Enemy_NoNavMesh>();
+        if (!enemyAI) enemyAI = GetComponentInChildren<Enemy_NoNavMesh>(true);
+
         if (card != null)
             card.SetActive(false);
     }
 
     public override void OnNetworkSpawn()
     {
-        // Asegura que el card se actualice en clientes cuando cambie "muerto"
         muerto.OnValueChanged += OnMuertoChanged;
-
-        // Si spawnea ya muerto (por late join), aplica estado
         OnMuertoChanged(false, muerto.Value);
     }
 
@@ -40,10 +43,9 @@ public class EnemigoHit : NetworkBehaviour, IRecibeDisparo
         muerto.OnValueChanged -= OnMuertoChanged;
     }
 
-    // Esto lo llama el servidor desde el raycast del arma (ideal)
     public void RecibirDisparo(DisparoTipo tipo)
     {
-        if (!IsServer) return;          // 🔥 autoridad en servidor
+        if (!IsServer) return;
         if (muerto.Value) return;
 
         if (tipo == DisparoTipo.Rojo)
@@ -53,30 +55,33 @@ public class EnemigoHit : NetworkBehaviour, IRecibeDisparo
         else
             return;
 
-        Debug.Log($"[SERVER] Rojos: {disparosRojos.Value} | Azules: {disparosAzules.Value}");
-
         if (disparosRojos.Value >= disparosPorColor &&
             disparosAzules.Value >= disparosPorColor)
         {
             muerto.Value = true;
 
-            // (Opcional) si quieres que el card se vea antes de destruir
-            // lo activamos por RPC (ver abajo) y destruimos un pelín después:
+            // 🔥 Ejecuta animación en todos
+            DieClientRpc();
+
+            // (Opcional) mostrar card
             ShowCardClientRpc();
 
-            // Destruir en red (para todos)
-            if (NetworkObject != null && NetworkObject.IsSpawned)
-                NetworkObject.Despawn(true);
-            else
-                Destroy(gameObject);
+            // Espera y luego elimina en red
+            StartCoroutine(DespawnAfterDelay());
         }
     }
 
     private void OnMuertoChanged(bool oldValue, bool newValue)
     {
-        // Esto corre en todos (server y clientes)
         if (card != null)
             card.SetActive(newValue);
+    }
+
+    [ClientRpc]
+    private void DieClientRpc()
+    {
+        if (enemyAI != null)
+            enemyAI.Die();
     }
 
     [ClientRpc]
@@ -84,5 +89,15 @@ public class EnemigoHit : NetworkBehaviour, IRecibeDisparo
     {
         if (card != null)
             card.SetActive(true);
+    }
+
+    private IEnumerator DespawnAfterDelay()
+    {
+        yield return new WaitForSeconds(deathDelay);
+
+        if (NetworkObject != null && NetworkObject.IsSpawned)
+            NetworkObject.Despawn(true);
+        else
+            Destroy(gameObject);
     }
 }

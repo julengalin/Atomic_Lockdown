@@ -3712,7 +3712,7 @@ MonoBehaviour:
   createButton: {fileID: 1377671802}
   joinButton: {fileID: 600169909}
   startGameButton: {fileID: 851558392}
-  nextSceneName: EscenaPruebas
+  nextSceneName: PRINCIPAL
   joinCodeInput: {fileID: 1270893096}
   joinCodeText: {fileID: 1031948159}
   playersCountText: {fileID: 1379949864}
