@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -87,13 +87,19 @@ public class LoginManager : MonoBehaviour
             }
         }
 
+        // SignOut sí debe estar activo solo si hay sesión
         if (signOutButton) signOutButton.interactable = hasSession;
 
-        if (anonimoButton) anonimoButton.interactable = !hasSession;
-        if (unityButton) unityButton.interactable = !hasSession && !unityLoginInProgress;
+        // ✅ Mantener color siempre: NO desactivar interactable por sesión
+        // De esta forma no aplica "Disabled Color"
+        if (anonimoButton) anonimoButton.interactable = true;
+
+        // Unity: solo lo bloqueamos mientras está en progreso para evitar doble click
+        if (unityButton) unityButton.interactable = !unityLoginInProgress;
     }
 
-    // ---------------- AN�NIMO ----------------
+
+    // ---------------- ANÓNIMO ----------------
     private void OnClickAnonimo()
     {
         if (SessionData.GetSessionType() != SessionType.None) return;
