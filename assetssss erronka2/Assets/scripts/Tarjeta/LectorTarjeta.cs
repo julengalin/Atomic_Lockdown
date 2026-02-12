@@ -1,23 +1,24 @@
 using UnityEngine;
+using Unity.Netcode;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 [RequireComponent(typeof(XRSimpleInteractable))]
-public class LectorTarjeta : MonoBehaviour
+public class LectorTarjeta : NetworkBehaviour
 {
-    [SerializeField] GestionTarjeta gestionTarjeta;
-    [SerializeField] Animator animator;
+    [SerializeField] private Animator animator;
 
-    [SerializeField] string animAbrir = "Abrir";
-    [SerializeField] string animError = "Error";
-    [SerializeField] string animAbierto = "Abierto";
+    [SerializeField] private string animAbrir = "Abrir";
+    [SerializeField] private string animError = "Error";
+    [SerializeField] private string animAbierto = "Abierto";
 
     public InteractionLock interactionLock;
     public InteractionType tipo = InteractionType.Tarjeta;
 
-    [SerializeField] SlidingDoor door;
+    [SerializeField] private SlidingDoor door;
 
-    public bool usado = false;
+    private NetworkVariable<bool> usado = new(
+        false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     private XRSimpleInteractable interactable;
 
@@ -38,6 +39,7 @@ public class LectorTarjeta : MonoBehaviour
 
     private void OnSelectEntered(SelectEnterEventArgs args)
     {
+        // Lock local (solo UX)
         if (interactionLock != null)
         {
             if (interactionLock.tipoActual != InteractionType.None && interactionLock.tipoActual != tipo)
@@ -47,40 +49,79 @@ public class LectorTarjeta : MonoBehaviour
                 interactionLock.Set(tipo);
         }
 
-        if (usado)
-        {
-            if (animator != null)
-                animator.Play(animAbierto);
-
-            if (interactionLock != null)
-                interactionLock.Limpiar();
-            return;
-        }
-
-        if (gestionTarjeta != null && gestionTarjeta.TieneTarjeta())
-        {
-            if (animator != null)
-                animator.Play(animAbrir);
-
-            gestionTarjeta.ConsumirTarjeta();
-            usado = true;
-
-            // Si quieres abrir la puerta instantáneo sin anim event, descomenta:
-            // AbrirPuerta();
-        }
-        else
-        {
-            if (animator != null)
-                animator.Play(animError);
-        }
+        UseReaderRpc(NetworkManager.Singleton.LocalClientId);
 
         if (interactionLock != null)
             interactionLock.Limpiar();
     }
 
-    public void AbrirPuerta()
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void UseReaderRpc(ulong clientId)
     {
+        if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out var client))
+            return;
+
+        var playerObj = client.PlayerObject;
+        if (playerObj == null) return;
+
+        var tarjeta = FindFirstObjectByType<GestionTarjeta>();
+        if (tarjeta == null) return;
+
+        if (tarjeta.TieneTarjeta(clientId))
+        {
+            tarjeta.ConsumirTarjeta();
+            usado.Value = true;
+            PlayAnimRpc(animAbrir);
+            AbrirPuertaServer();
+        }
+        else
+        {
+            PlayAnimRpc(animError);
+        }
+
+        if (usado.Value)
+        {
+            PlayAnimRpc(animAbierto);
+            return;
+        }
+
+        else
+        {
+            PlayAnimRpc(animError);
+        }
+    }
+
+    private void AbrirPuertaServer()
+    {
+        if (!IsServer) return;
         if (door != null)
             door.ForceOpen();
+    }
+
+    // Para animaciones/FX en todos
+    [Rpc(SendTo.Everyone)]
+    private void PlayAnimRpc(string animName)
+    {
+        if (animator != null && !string.IsNullOrEmpty(animName))
+            animator.Play(animName);
+    }
+
+    // Si aún quieres llamar esto desde un Animation Event:
+    public void AbrirPuerta()
+    {
+        // Solo el server debe abrir
+        if (!IsServer)
+        {
+            AbrirPuertaRpc();
+            return;
+        }
+
+        AbrirPuertaServer();
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void AbrirPuertaRpc()
+    {
+        AbrirPuertaServer();
     }
 }

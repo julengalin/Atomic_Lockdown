@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
+using Unity.Netcode;
 using System.Collections;
 
-public class SlidingDoor : MonoBehaviour
+public class SlidingDoor : NetworkBehaviour
 {
     [Header("Player")]
     public Transform player;
@@ -18,7 +19,7 @@ public class SlidingDoor : MonoBehaviour
     [Header("Audio")]
     public AudioSource audioSource;
     public AudioClip openSound;
-    public AudioClip closeSound; // opcional
+    public AudioClip closeSound;
 
     private Vector3 closedPos;
     private Vector3 openPos;
@@ -26,21 +27,31 @@ public class SlidingDoor : MonoBehaviour
     private bool isMoving;
     private bool isOpen;
 
-    public bool blocked = false;
+    private NetworkVariable<bool> blocked = new(
+    false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    public bool IsBlocked => blocked.Value;
+
+    public void SetBlocked(bool value)
+    {
+        if (!IsServer) return;
+        blocked.Value = value;
+    }
 
     void Start()
     {
         closedPos = transform.position;
         openPos = closedPos + slideDirection.normalized * slideAmount;
 
-        // Seguridad: si no asignas AudioSource, lo busca en la puerta
         if (!audioSource)
             audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
     {
-        if (blocked)
+        if (!IsServer) return; // 🔥 SOLO el servidor controla
+
+        if (blocked.Value)
             return;
 
         if (!player || isMoving || isOpen)
@@ -56,12 +67,15 @@ public class SlidingDoor : MonoBehaviour
 
     public void Unlock()
     {
-        blocked = false;
+        if (!IsServer) return;
+        blocked.Value = false;
     }
 
     public void ForceOpen()
     {
-        blocked = false;
+        if (!IsServer) return;
+
+        blocked.Value = false;
 
         if (isMoving || isOpen)
             return;
@@ -73,14 +87,16 @@ public class SlidingDoor : MonoBehaviour
     {
         isMoving = true;
 
-        // 🔊 SONIDO DE ABRIR
-        if (audioSource && openSound)
-            audioSource.PlayOneShot(openSound);
+        PlaySoundClientRpc(true);
 
         // ABRIR
         while (Vector3.Distance(transform.position, openPos) > 0.01f)
         {
-            transform.position = Vector3.Lerp(transform.position, openPos, speed * Time.deltaTime);
+            transform.position = Vector3.Lerp(
+                transform.position,
+                openPos,
+                speed * Time.deltaTime);
+
             yield return null;
         }
 
@@ -88,24 +104,36 @@ public class SlidingDoor : MonoBehaviour
         isOpen = true;
         isMoving = false;
 
-        // ESPERAR ABIERTA
         yield return new WaitForSeconds(stayOpenTime);
 
-        // 🔊 SONIDO DE CERRAR (opcional)
-        if (audioSource && closeSound)
-            audioSource.PlayOneShot(closeSound);
+        PlaySoundClientRpc(false);
 
         // CERRAR
         isMoving = true;
 
         while (Vector3.Distance(transform.position, closedPos) > 0.01f)
         {
-            transform.position = Vector3.Lerp(transform.position, closedPos, speed * Time.deltaTime);
+            transform.position = Vector3.Lerp(
+                transform.position,
+                closedPos,
+                speed * Time.deltaTime);
+
             yield return null;
         }
 
         transform.position = closedPos;
         isOpen = false;
         isMoving = false;
+    }
+
+    [ClientRpc]
+    private void PlaySoundClientRpc(bool opening)
+    {
+        if (!audioSource) return;
+
+        if (opening && openSound)
+            audioSource.PlayOneShot(openSound);
+        else if (!opening && closeSound)
+            audioSource.PlayOneShot(closeSound);
     }
 }

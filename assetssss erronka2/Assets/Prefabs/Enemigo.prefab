@@ -285,6 +285,7 @@ GameObject:
   - component: {fileID: 983904310523564586}
   - component: {fileID: 7408122442606347716}
   - component: {fileID: 2706242325651225943}
+  - component: {fileID: 4575515178407164927}
   m_Layer: 0
   m_Name: MagnetCard
   m_TagString: Untagged
@@ -398,9 +399,78 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RecogerTarjeta
   gestionTarjeta: {fileID: 1783605322258557741}
-  tarjetaObj: {fileID: 4857799129691819385}
-  interactionLock: {fileID: 0}
-  tipo: 8
+--- !u!114 &4575515178407164927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4857799129691819385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a35f6cfbfba9b548aaa00d52cfe8a50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.XR.Interaction.Toolkit::UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable
+  m_InteractionManager: {fileID: 0}
+  m_Colliders: []
+  m_InteractionLayers:
+    m_Bits: 1
+  m_DistanceCalculationMode: 1
+  m_SelectMode: 0
+  m_FocusMode: 1
+  m_CustomReticle: {fileID: 0}
+  m_AllowGazeInteraction: 0
+  m_AllowGazeSelect: 0
+  m_OverrideGazeTimeToSelect: 0
+  m_GazeTimeToSelect: 0.5
+  m_OverrideTimeToAutoDeselectGaze: 0
+  m_TimeToAutoDeselectGaze: 3
+  m_AllowGazeAssistance: 0
+  m_FirstHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_HoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_HoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FirstSelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastSelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_SelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_SelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FirstFocusEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastFocusExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FocusEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FocusExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Activated:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Deactivated:
+    m_PersistentCalls:
+      m_Calls: []
+  m_StartingHoverFilters: []
+  m_StartingSelectFilters: []
+  m_StartingInteractionStrengthFilters: []
 --- !u!1 &5687178932442943586
 GameObject:
   m_ObjectHideFlags: 0
@@ -410,6 +480,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6765912903357637252}
+  - component: {fileID: 4885666871983714546}
   - component: {fileID: 1783605322258557741}
   m_Layer: 0
   m_Name: Tarjeta
@@ -435,6 +506,31 @@ Transform:
   - {fileID: 8120552813623332678}
   m_Father: {fileID: 6028111632363824478}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4885666871983714546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5687178932442943586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!114 &1783605322258557741
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -447,7 +543,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3bcb7e38f87c44691a8c3e6c3df76b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GestionTarjeta
+  ShowTopMostFoldoutHeaderGroup: 1
   iconoTarjeta: {fileID: 754527455762147065}
+  tarjetaVisual: {fileID: 5687178932442943586}
 --- !u!1 &5735839786262514174
 GameObject:
   m_ObjectHideFlags: 0
@@ -931,5 +1029,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3e5fae193cd35645b71d7fe81005aba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemigoHit
-  disparosNecesarios: 6
-  card: {fileID: 4857799129691819385}
+  ShowTopMostFoldoutHeaderGroup: 1
+  disparosPorColor: 3
+  tarjetaEnEscena: {fileID: 0}
+  card: {fileID: 0}

@@ -34,9 +34,9 @@ public class DoorEyeLock : MonoBehaviour
         if (door == null) return;
 
         if (emergenciaActiva && eyesRemaining > 0)
-            door.blocked = true;
+            door.SetBlocked(true);
         else
-            door.blocked = false;
+            door.SetBlocked(false);
     }
 
     void ActivarOjos()
