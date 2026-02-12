@@ -203,13 +203,11 @@ public class Enemy_NoNavMesh : MonoBehaviour
         waiting = false;
     }
 
-    // ✅ ENTRA
     void OnTriggerEnter(Collider other)
     {
         TryTouchPlayer(other);
     }
 
-    // ✅ SE QUEDA DENTRO (esto arregla que la 2ª vez no funcione)
     void OnTriggerStay(Collider other)
     {
         TryTouchPlayer(other);
@@ -220,7 +218,6 @@ public class Enemy_NoNavMesh : MonoBehaviour
         if (dead) return;
         if (touchLocked) return;
 
-        // ✅ detecta al player aunque el collider sea de un hijo
         if (!player) return;
         if (other.transform != player && other.transform.root != player.root) return;
 
