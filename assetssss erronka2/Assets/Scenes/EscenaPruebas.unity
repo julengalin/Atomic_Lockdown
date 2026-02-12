@@ -7670,9 +7670,13 @@ MonoBehaviour:
   canvasObject: {fileID: 1030907126}
   playMode: 0
   cam: {fileID: 625844642}
+  abridor: {fileID: 4933467183906544828}
   candadoOffset: {x: 0, y: -0.2, z: 1}
   candadoRotCorrecta: {x: 0, y: 180, z: 0}
-  CandadoNumeros: {fileID: 73475896}
+  normalLocalCandado: {x: 0, y: 0, z: -1}
+  upLocalCandado: {x: 0, y: 1, z: 0}
+  normalLocalAbridor: {x: 0, y: -1, z: 0}
+  upLocalAbridor: {x: 0, y: 0, z: 1}
   interactionLock: {fileID: 1204057018}
   tipo: 3
   escala: 3
@@ -9029,7 +9033,7 @@ GameObject:
   - component: {fileID: 7885156440117362501}
   - component: {fileID: 7885156440117362502}
   m_Layer: 0
-  m_Name: Boton-A
+  m_Name: Boton+A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9324,7 +9328,7 @@ Transform:
   m_GameObject: {fileID: 7360681338818815486}
   serializedVersion: 2
   m_LocalRotation: {x: -0.70710677, y: 0, z: -0, w: -0.7071069}
-  m_LocalPosition: {x: -1.1339952, y: 5.940345, z: -0.48152983}
+  m_LocalPosition: {x: 2.3355105, y: 5.940345, z: -0.48152983}
   m_LocalScale: {x: 2.3000004, y: 2.2999997, z: 2.2999997}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -9404,7 +9408,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 287697196614924540}
         m_TargetAssemblyTypeName: GiroValvulaVisual, Assembly-CSharp
-        m_MethodName: ForzarIzquierda
+        m_MethodName: ForzarDerecha
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9623,7 +9627,7 @@ Transform:
   m_GameObject: {fileID: 8711923848188007319}
   serializedVersion: 2
   m_LocalRotation: {x: -0.70710677, y: 0, z: -0, w: -0.7071069}
-  m_LocalPosition: {x: 2.3355105, y: 5.940345, z: -0.48152983}
+  m_LocalPosition: {x: -1.1339952, y: 5.940345, z: -0.48152983}
   m_LocalScale: {x: 2.3000004, y: 2.2999997, z: 2.2999997}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -9904,7 +9908,7 @@ GameObject:
   - component: {fileID: 8711923848188007321}
   - component: {fileID: 8711923848188007320}
   m_Layer: 0
-  m_Name: Boton+A
+  m_Name: Boton-A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9960,7 +9964,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 287697196614924540}
         m_TargetAssemblyTypeName: GiroValvulaVisual, Assembly-CSharp
-        m_MethodName: ForzarDerecha
+        m_MethodName: ForzarIzquierda
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

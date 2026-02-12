@@ -5,18 +5,29 @@ public class AbrirCandado : MonoBehaviour
     [SerializeField] private GameObject canvasObject;
     public bool playMode = false;
     [SerializeField] Camera cam;
+
     Vector3 posicionInicial;
     Quaternion rotacionInicial;
     Vector3 escalaInicial;
 
-    [SerializeField] Vector3 candadoOffset = new Vector3(1.0000f, 0.65f, 5.5f);
+    [SerializeField] Transform abridor;
 
-    public Vector3 candadoRotCorrecta = new Vector3(0f, 0f, 0f);
+    Vector3 abridorPosInicial;
+    Quaternion abridorRotInicial;
+    Vector3 abridorEscalaInicial;
+
+    Vector3 abridorOffsetLocal;
+
+    [SerializeField] Vector3 candadoOffset = new Vector3(1.0f, 0.65f, 5.5f);
+
+    public Vector3 candadoRotCorrecta = Vector3.zero;
     Quaternion candadoRotOffset;
 
-    [SerializeField] Transform CandadoNumeros;
+    [SerializeField] Vector3 normalLocalCandado = new Vector3(0, 0, -1);
+    [SerializeField] Vector3 upLocalCandado = new Vector3(0, 1, 0);
 
-    Quaternion camRotInicial;
+    [SerializeField] Vector3 normalLocalAbridor = new Vector3(0, 1, 0);
+    [SerializeField] Vector3 upLocalAbridor = new Vector3(0, 0, 1);
 
     public InteractionLock interactionLock;
     public InteractionType tipo = InteractionType.CandadoNumerico;
@@ -29,33 +40,77 @@ public class AbrirCandado : MonoBehaviour
     [SerializeField] string sortingLayerName = "VR_UI";
     [SerializeField] int sortingOrder = 100;
 
+    bool abierto = false;
+    public bool abriendo = false;
+
     private void Start()
     {
-        posicionInicial = gameObject.transform.position;
-        rotacionInicial = gameObject.transform.rotation;
-        escalaInicial = gameObject.transform.localScale;
+        posicionInicial = transform.position;
+        rotacionInicial = transform.rotation;
+        escalaInicial = transform.localScale;
+
+        if (abridor != null)
+        {
+            abridorPosInicial = abridor.position;
+            abridorRotInicial = abridor.rotation;
+            abridorEscalaInicial = abridor.localScale;
+
+            abridorOffsetLocal = transform.InverseTransformPoint(abridor.position);
+        }
 
         candadoRotOffset = Quaternion.Euler(candadoRotCorrecta);
-
-        if (CandadoNumeros == null)
-            CandadoNumeros = transform;
     }
 
     void Update()
     {
         if (!playMode) return;
+        if (abierto) return;
+
+        if (abriendo) return;
 
         if (cam == null) cam = Camera.main;
         if (cam == null) return;
 
-        transform.position = CamOffset(cam, candadoOffset);
+        Vector3 basePos = CamOffset(cam, candadoOffset);
+        transform.position = basePos;
 
-        Vector3 dir = CandadoNumeros.position - cam.transform.position;
-        if (dir.sqrMagnitude > 0.000001f)
-            CandadoNumeros.rotation = Quaternion.LookRotation(dir, Vector3.up) * candadoRotOffset;
+        Vector3 toCam = cam.transform.position - transform.position;
+
+        if (toCam.sqrMagnitude > 0.000001f)
+        {
+            Quaternion rotCandado = CalcularRotacion(toCam, normalLocalCandado, upLocalCandado) * candadoRotOffset;
+            transform.rotation = rotCandado;
+
+            if (abridor != null)
+            {
+                abridor.position = transform.TransformPoint(abridorOffsetLocal);
+                abridor.rotation = CalcularRotacion(toCam, normalLocalAbridor, upLocalAbridor);
+            }
+        }
+        else
+        {
+            if (abridor != null)
+                abridor.position = transform.TransformPoint(abridorOffsetLocal);
+        }
 
         if (canvasObject != null && canvasObject.activeSelf)
             ActualizarPosicionCanvas();
+    }
+
+    Quaternion CalcularRotacion(Vector3 toCamWorld, Vector3 normalLocal, Vector3 upLocal)
+    {
+        Vector3 desiredNormalWorld = toCamWorld.normalized;
+        Quaternion targetFrame = Quaternion.LookRotation(desiredNormalWorld, Vector3.up);
+
+        Vector3 nL = normalLocal.normalized;
+        Vector3 uL = upLocal.normalized;
+
+        Vector3 rL = Vector3.Cross(uL, nL).normalized;
+        uL = Vector3.Cross(nL, rL).normalized;
+
+        Quaternion localFrame = Quaternion.LookRotation(nL, uL);
+
+        return targetFrame * Quaternion.Inverse(localFrame);
     }
 
     Vector3 CamOffset(Camera c, Vector3 offset)
@@ -76,13 +131,10 @@ public class AbrirCandado : MonoBehaviour
         if (interactionLock != null)
         {
             if (interactionLock.tipoActual != InteractionType.None && interactionLock.tipoActual != tipo)
-            {
                 return;
-            }
-            else if (interactionLock.tipoActual == InteractionType.None)
-            {
+
+            if (interactionLock.tipoActual == InteractionType.None)
                 interactionLock.Set(tipo);
-            }
         }
 
         if (!playMode) ToggleState();
@@ -91,7 +143,6 @@ public class AbrirCandado : MonoBehaviour
     public void ToggleState()
     {
         playMode = !playMode;
-        Debug.Log(playMode);
 
         GetComponent<Collider>().enabled = !playMode;
 
@@ -99,24 +150,25 @@ public class AbrirCandado : MonoBehaviour
 
         if (playMode)
         {
+            abierto = false;
+
             transform.localScale = escalaInicial * escala;
 
-            if (cam != null)
-            {
-                camRotInicial = cam.transform.rotation;
-
-                transform.position = CamOffset(cam, candadoOffset);
-
-                Vector3 dir = CandadoNumeros.position - cam.transform.position;
-                if (dir.sqrMagnitude > 0.000001f)
-                    CandadoNumeros.rotation = Quaternion.LookRotation(dir, Vector3.up) * candadoRotOffset;
-            }
+            if (abridor != null)
+                abridor.localScale = abridorEscalaInicial * escala;
         }
         else
         {
             transform.position = posicionInicial;
             transform.rotation = rotacionInicial;
             transform.localScale = escalaInicial;
+
+            if (abridor != null)
+            {
+                abridor.position = abridorPosInicial;
+                abridor.rotation = abridorRotInicial;
+                abridor.localScale = abridorEscalaInicial;
+            }
         }
 
         if (canvasObject == null) return;
@@ -141,6 +193,11 @@ public class AbrirCandado : MonoBehaviour
             interactionLock.Limpiar();
     }
 
+    public void MarcarAbierto()
+    {
+        abierto = true;
+    }
+
     void ActualizarPosicionCanvas()
     {
         if (cam == null || canvasObject == null) return;
@@ -158,5 +215,10 @@ public class AbrirCandado : MonoBehaviour
             if (fwd.sqrMagnitude > 0.000001f)
                 t.rotation = Quaternion.LookRotation(fwd, Vector3.up);
         }
+    }
+
+    public void setabriendo()
+    {
+        abriendo = !abriendo;
     }
 }

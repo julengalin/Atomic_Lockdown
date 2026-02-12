@@ -43,7 +43,7 @@ public class JuegoCandado : MonoBehaviour
 
     public void check()
     {
-
+        AbrirCandado.setabriendo();
         int correct = 0;
         for (int i = 0; i < correctNumbers.Length; i++)
         {
@@ -68,6 +68,7 @@ public class JuegoCandado : MonoBehaviour
             rueda2.gameObject.GetComponent<RotateNumbers>().ResetWheel();
             rueda3.gameObject.GetComponent<RotateNumbers>().ResetWheel();
         }
+        AbrirCandado.setabriendo();
     }
 
 }
