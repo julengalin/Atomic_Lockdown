@@ -15,7 +15,10 @@ public class GestionLuz : MonoBehaviour
 
     public void SetDiff(int diff)
     {
+        Debug.Log("Entramos en set diff y la diff es = " +  diff.ToString());
         if (luz == null) return;
+
+        Debug.Log("Luz existe");
 
         int abs = Mathf.Abs(diff);
 
@@ -23,6 +26,8 @@ public class GestionLuz : MonoBehaviour
         if (maxDiff > 0) t = Mathf.Clamp01(abs / (float)maxDiff);
 
         float intensidad = Mathf.Lerp(intensidadBase, intensidadMax, t);
+
+        Debug.Log("intensidad =" + intensidad);
 
         Color c;
 
@@ -41,6 +46,7 @@ public class GestionLuz : MonoBehaviour
             c = rojo ? Color.red : Color.blue;
         }
 
+        Debug.Log("Color =" + c);
         luz.color = c;
         luz.intensity = intensidad;
     }

@@ -21,6 +21,11 @@ public class RotateNumbers : MonoBehaviour
 
     void OnMouseDown()
     {
+        metodoClick();
+    }
+
+    public void metodoClick()
+    {
         if (interactionLock.tipoActual != InteractionType.None && interactionLock.tipoActual != tipo)
         {
             return;

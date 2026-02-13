@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using Unity.VisualScripting;
 
 public class GestionLlave : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class GestionLlave : MonoBehaviour
     [SerializeField] AbrirCandadoLlave abrirCandadoLlave;
 
     public InteractionLock interactionLock;
+
+    public RecogerLlave RecogerLlave;
 
     bool picked = false;
 
@@ -24,7 +27,8 @@ public class GestionLlave : MonoBehaviour
         }
         else
         {
-            abrirCandadoLlave.ampliar();
+            RecogerLlave.BloquearYLanzarEventos();
+            interactionLock.Limpiar();
         }
     }
 
@@ -39,7 +43,7 @@ public class GestionLlave : MonoBehaviour
     {
         picked = true;
         imagen.gameObject.SetActive(true);
-        key.SetActive(false);
+        key.gameObject.GetComponent<MeshRenderer>().enabled = false;
     }
 
     public void llaveUsada()

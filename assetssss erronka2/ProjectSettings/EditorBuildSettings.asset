@@ -27,7 +27,7 @@ EditorBuildSettings:
     path: Assets/Scenes/planta1.unity
     guid: 2e5e11baf6e88844db42d5f68a30af8a
   - enabled: 0
-    path: Assets/Scenes/EscenaPruebas.unity
+    path: Assets/Scenes/EscenaPruebasMecanicas.unity
     guid: 0c6103e9cbda32e4793adb0f39c772de
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 3ffdd5002d7eef74cbca6545e4aa51b1, type: 2}

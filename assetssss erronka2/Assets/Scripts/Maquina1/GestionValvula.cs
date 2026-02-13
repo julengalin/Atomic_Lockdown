@@ -2,16 +2,10 @@ using UnityEngine;
 
 public class GestionValvula : MonoBehaviour
 {
-    public Camera cam;
-    public GameObject botonSalir;
-
     public InteractionLock interactionLock;
     public InteractionType tipo;
 
     public bool playMode = false;
-
-    public Vector3 camPlayOffset = new Vector3(-9.184861f, 7.47298f, -16.25878f);
-    public Vector3 camPlayRotation = new Vector3(-150f, 29.463f, 0f);
 
     public int valorCorrecto;
     public int valorInicial;
@@ -19,37 +13,43 @@ public class GestionValvula : MonoBehaviour
 
     public GameObject candado;
 
-    [SerializeField] Vector3 camPosInicial;
-    [SerializeField] Quaternion camRotInicial;
-
-    static bool camaraBloqueada = false;
-    static Vector3 camPosGlobal;
-    static Quaternion camRotGlobal;
-
-    public Collider col;
-    public Collider colHijo;
-
     public GestionLuz gestionLuz;
 
     bool bloqueada = false;
 
     public ControlMaquina1 controlMaquina;
 
+    int lastDiff = int.MinValue;
+
+    public GiroValvulaVisual visual;
+
     private void Start()
     {
         valorActual = valorInicial;
-
-        col = GetComponent<Collider>();
-
-        if (botonSalir != null) botonSalir.SetActive(false);
 
         if (gestionLuz != null)
             gestionLuz.SetDiff(valorActual - valorCorrecto);
     }
 
+    private void Update()
+    {
+        int diff = valorActual - valorCorrecto;
+        if (diff != lastDiff)
+        {
+            lastDiff = diff;
+            if (gestionLuz != null)
+                gestionLuz.SetDiff(diff);
+        }
+    }
+
     private void OnMouseDown()
     {
+        metodoClick();
+    }
 
+    public void metodoClick()
+    {
+        Debug.Log("Llega");
         if (tipo == InteractionType.ValvulaAzul)
         {
             Debug.Log("entra mouse azul");
@@ -80,51 +80,25 @@ public class GestionValvula : MonoBehaviour
             }
         }
 
-
+        Debug.Log("Pasa interacciones va a entrar");
         if (!playMode) Entrar();
     }
 
     public void Entrar()
     {
-        if (cam == null) return;
-
+        Debug.Log("Ha entrado");
         playMode = true;
 
-        if (!camaraBloqueada)
-        {
-            camPosGlobal = cam.transform.position;
-            camRotGlobal = cam.transform.rotation;
-            camaraBloqueada = true;
-        }
-
         if (candado != null) candado.SetActive(false);
-
-        if (botonSalir != null) botonSalir.SetActive(true);
-
-        if (col != null) col.enabled = false;
-        if (colHijo != null) colHijo.enabled = true;
-
-        cam.transform.position = transform.position + camPlayOffset;
-        cam.transform.rotation = Quaternion.Euler(camPlayRotation);
+        Debug.Log("Vamos al metodo select");
+        visual.metodoSelect();
     }
 
     public void Salir()
     {
-        if (cam == null) return;
-
         playMode = false;
 
-        if (botonSalir != null) botonSalir.SetActive(false);
-
-        cam.transform.position = camPosGlobal;
-        cam.transform.rotation = camRotGlobal;
-
-        camaraBloqueada = false;
-
         if (candado != null) candado.SetActive(true);
-
-        if (colHijo != null) colHijo.enabled = false;
-        if (col != null) col.enabled = true;
 
         if (interactionLock != null)
         {
@@ -153,10 +127,16 @@ public class GestionValvula : MonoBehaviour
 
     public void SetValorActual(int nuevoValor)
     {
+        Debug.Log("Entramos en setvaloractual");
         valorActual = nuevoValor;
 
+        Debug.Log("nuevoValor = " + nuevoValor);
+        Debug.Log("valorActual = " + valorActual);
         if (gestionLuz != null)
+        {
+            Debug.Log("Gestion luz no está vacio");
             gestionLuz.SetDiff(valorActual - valorCorrecto);
+        }
     }
 
     public bool esVerde()
