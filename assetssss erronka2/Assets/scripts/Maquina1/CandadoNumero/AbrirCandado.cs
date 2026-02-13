@@ -40,8 +40,7 @@ public class AbrirCandado : MonoBehaviour
     [SerializeField] string sortingLayerName = "VR_UI";
     [SerializeField] int sortingOrder = 100;
 
-    bool abierto = false;
-    public bool abriendo = false;
+    public bool abierto = false;
 
     private void Start()
     {
@@ -65,8 +64,6 @@ public class AbrirCandado : MonoBehaviour
     {
         if (!playMode) return;
         if (abierto) return;
-
-        if (abriendo) return;
 
         if (cam == null) cam = Camera.main;
         if (cam == null) return;
@@ -215,10 +212,5 @@ public class AbrirCandado : MonoBehaviour
             if (fwd.sqrMagnitude > 0.000001f)
                 t.rotation = Quaternion.LookRotation(fwd, Vector3.up);
         }
-    }
-
-    public void setabriendo()
-    {
-        abriendo = !abriendo;
     }
 }

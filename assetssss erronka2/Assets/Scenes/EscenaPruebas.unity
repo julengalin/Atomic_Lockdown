@@ -266,6 +266,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 73475896}
+  - component: {fileID: 73475897}
   m_Layer: 0
   m_Name: CandadoNumeros
   m_TagString: Untagged
@@ -291,6 +292,28 @@ Transform:
   - {fileID: 1030907127}
   m_Father: {fileID: 7294931781966872271}
   m_LocalEulerAnglesHint: {x: -31.44, y: 0, z: 0}
+--- !u!95 &73475897
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 73475895}
+  m_Enabled: 0
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 1527870071e74a848aad063823043430, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &170535304
 GameObject:
   m_ObjectHideFlags: 0
@@ -4518,9 +4541,10 @@ MonoBehaviour:
   rueda1: {fileID: 104163224392523842}
   rueda2: {fileID: 4875866673978988373}
   rueda3: {fileID: 586402844}
+  tuboAnimator: {fileID: 73475897}
   ended: 0
-  playPos: 6.12
-  endPos: 6.25
+  playPos: 0
+  endPos: 0
   correctNumbers: 020000000500000007000000
   actualNumbers: 090000000600000003000000
   controlMaquina: {fileID: 8777066721634125270}
@@ -7218,7 +7242,7 @@ Transform:
   m_GameObject: {fileID: 1482018292801653000}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: -0.7071068}
-  m_LocalPosition: {x: 3.600006, y: 6.12, z: -10.030003}
+  m_LocalPosition: {x: 3.600006, y: 6.12, z: -10.03}
   m_LocalScale: {x: 50, y: 50, z: 50}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -7684,6 +7708,7 @@ MonoBehaviour:
   faceCamera: 1
   sortingLayerName: VR_UI
   sortingOrder: 100
+  abriendo: 0
 --- !u!33 &5563750563914748481
 MeshFilter:
   m_ObjectHideFlags: 0
