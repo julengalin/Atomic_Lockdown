@@ -39,6 +39,11 @@ public class Enemy_NoNavMesh : MonoBehaviour
     [Tooltip("Sube un pelín al respawn para evitar quedarse dentro de colliders")]
     public float respawnPushUp = 0.05f;
 
+    [Header("Sonido (al tocar al player)")]
+    public AudioSource audioSource;       // arrastra un AudioSource (en el enemigo)
+    public AudioClip touchPlayerClip;     // sonido al tocar/respawn
+    [Range(0f, 1f)] public float touchVolume = 1f;
+
     [Header("Muerte")]
     public bool freezeCompletelyOnDeath = true;
     public bool disableControllerOnDeath = true;
@@ -63,6 +68,8 @@ public class Enemy_NoNavMesh : MonoBehaviour
     {
         if (!controller) controller = GetComponent<CharacterController>();
         if (!animator) animator = GetComponentInChildren<Animator>(true);
+
+        if (!audioSource) audioSource = GetComponent<AudioSource>(); // ✅ auto si está en el enemigo
 
         walkHash = Animator.StringToHash(isWalkingBool);
         deadHash = Animator.StringToHash(muertoBool);
@@ -185,6 +192,9 @@ public class Enemy_NoNavMesh : MonoBehaviour
         if (Time.time < nextRespawnTime) return;
         nextRespawnTime = Time.time + respawnCooldown;
 
+        // ✅ sonido SOLO cuando realmente respawnea (no en cada frame)
+        PlayTouchSound();
+
         RespawnPlayer();
 
         if (resetEnemyAfterTouch && enemyResetPoint)
@@ -194,6 +204,14 @@ public class Enemy_NoNavMesh : MonoBehaviour
 
         // ✅ importante: lo marcamos como fuera para que el siguiente toque cuente
         playerInside = false;
+    }
+
+    void PlayTouchSound()
+    {
+        if (!audioSource || !touchPlayerClip) return;
+
+        // OneShot no corta otros sonidos del AudioSource
+        audioSource.PlayOneShot(touchPlayerClip, touchVolume);
     }
 
     void RespawnPlayer()
