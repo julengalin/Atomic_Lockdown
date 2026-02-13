@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class AbrirCandado : MonoBehaviour
 {
@@ -193,6 +194,9 @@ public class AbrirCandado : MonoBehaviour
     public void MarcarAbierto()
     {
         abierto = true;
+        abridor.transform.localScale = abridorEscalaInicial;
+        transform.localScale = escalaInicial;
+        transform.rotation = rotacionInicial;
     }
 
     void ActualizarPosicionCanvas()
