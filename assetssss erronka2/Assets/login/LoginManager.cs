@@ -27,7 +27,7 @@ public class LoginManager : MonoBehaviour
 
     [Header("Scenes")]
     public string lobbySceneName = "Lobby";
-    public string escenaPruebasName = "EscenaPruebas";
+    public string escenaPruebasName = "EscenaPruebasMecanicas";
 
     private bool servicesReady = false;
     private bool unityLoginInProgress = false;
@@ -40,8 +40,7 @@ public class LoginManager : MonoBehaviour
         if (anonimoButton) anonimoButton.onClick.AddListener(OnClickAnonimo);
         if (unityButton) unityButton.onClick.AddListener(OnClickUnity);
         if (signOutButton) signOutButton.onClick.AddListener(OnClickSignOut);
-
-        // 🔵 NUEVO BOTÓN
+        
         if (escenaPruebasButton)
             escenaPruebasButton.onClick.AddListener(LoadEscenaPruebas);
 

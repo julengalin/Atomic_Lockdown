@@ -7786,7 +7786,7 @@ MonoBehaviour:
   anonOkButton: {fileID: 2123923652}
   anonCancelButton: {fileID: 1514148082}
   lobbySceneName: Lobby
-  escenaPruebasName: EscenaPruebas
+  escenaPruebasName: EscenaPruebasMecanicas
 --- !u!4 &1348260147
 Transform:
   m_ObjectHideFlags: 0

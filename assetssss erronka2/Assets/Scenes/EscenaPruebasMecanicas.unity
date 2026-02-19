@@ -274,6 +274,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1204057018}
     - target: {fileID: 1816634436773533387, guid: 7d4ef58d6ab2917419287167095d9528, type: 3}
+      propertyPath: cam
+      value: 
+      objectReference: {fileID: 625844642}
+    - target: {fileID: 1816634436773533387, guid: 7d4ef58d6ab2917419287167095d9528, type: 3}
       propertyPath: interactionLock
       value: 
       objectReference: {fileID: 1204057018}
@@ -907,6 +911,14 @@ PrefabInstance:
       propertyPath: interactionLock
       value: 
       objectReference: {fileID: 1204057018}
+    - target: {fileID: 4364617182399553446, guid: 557a57a0920cbc946a0cfed8a4c1282a, type: 3}
+      propertyPath: cam
+      value: 
+      objectReference: {fileID: 625844642}
+    - target: {fileID: 4387472297665050200, guid: 557a57a0920cbc946a0cfed8a4c1282a, type: 3}
+      propertyPath: cam
+      value: 
+      objectReference: {fileID: 625844642}
     - target: {fileID: 4477209619826402414, guid: 557a57a0920cbc946a0cfed8a4c1282a, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.602
