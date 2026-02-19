@@ -16,14 +16,18 @@ public class LoginManager : MonoBehaviour
     public Button unityButton;
     public Button signOutButton;
 
+    [Header("Botón Escena Pruebas")]
+    public Button escenaPruebasButton;
+
     [Header("Anon Popup UI")]
     public GameObject anonPanel;
     public TMP_InputField anonNameInput;
     public Button anonOkButton;
     public Button anonCancelButton;
 
-    [Header("Scene")]
+    [Header("Scenes")]
     public string lobbySceneName = "Lobby";
+    public string escenaPruebasName = "EscenaPruebas";
 
     private bool servicesReady = false;
     private bool unityLoginInProgress = false;
@@ -36,6 +40,10 @@ public class LoginManager : MonoBehaviour
         if (anonimoButton) anonimoButton.onClick.AddListener(OnClickAnonimo);
         if (unityButton) unityButton.onClick.AddListener(OnClickUnity);
         if (signOutButton) signOutButton.onClick.AddListener(OnClickSignOut);
+
+        // 🔵 NUEVO BOTÓN
+        if (escenaPruebasButton)
+            escenaPruebasButton.onClick.AddListener(LoadEscenaPruebas);
 
         if (anonPanel) anonPanel.SetActive(false);
 
@@ -87,17 +95,15 @@ public class LoginManager : MonoBehaviour
             }
         }
 
-        // SignOut sí debe estar activo solo si hay sesión
-        if (signOutButton) signOutButton.interactable = hasSession;
+        if (signOutButton)
+            signOutButton.interactable = hasSession;
 
-        // ✅ Mantener color siempre: NO desactivar interactable por sesión
-        // De esta forma no aplica "Disabled Color"
-        if (anonimoButton) anonimoButton.interactable = true;
+        if (anonimoButton)
+            anonimoButton.interactable = true;
 
-        // Unity: solo lo bloqueamos mientras está en progreso para evitar doble click
-        if (unityButton) unityButton.interactable = !unityLoginInProgress;
+        if (unityButton)
+            unityButton.interactable = !unityLoginInProgress;
     }
-
 
     // ---------------- ANÓNIMO ----------------
     private void OnClickAnonimo()
@@ -221,7 +227,7 @@ public class LoginManager : MonoBehaviour
         RefreshUI();
     }
 
-    // ---------------- HELPERS ----------------
+    // ---------------- LOAD SCENES ----------------
     private void LoadLobby()
     {
         if (string.IsNullOrWhiteSpace(lobbySceneName))
@@ -231,5 +237,16 @@ public class LoginManager : MonoBehaviour
         }
 
         SceneManager.LoadScene(lobbySceneName);
+    }
+
+    private void LoadEscenaPruebas()
+    {
+        if (string.IsNullOrWhiteSpace(escenaPruebasName))
+        {
+            Debug.LogWarning("escenaPruebasName hutsik dago.");
+            return;
+        }
+
+        SceneManager.LoadScene(escenaPruebasName);
     }
 }
